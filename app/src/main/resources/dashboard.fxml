@@ -1,0 +1,108 @@
+
+
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  Copyright (c) 2015, 2019, Gluon and/or its affiliates.
+  All rights reserved. Use is subject to license terms.
+  (License section unchanged)
+-->
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.text.Font?>
+
+<VBox prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.MyEde.Controller">
+    <children>
+        <MenuBar VBox.vgrow="NEVER">
+            <menus>
+                <Menu mnemonicParsing="false" text="File">
+                    <items>
+                        <MenuItem mnemonicParsing="false" onAction="#handleNewProject" text="New Project" />
+                        <MenuItem mnemonicParsing="false" onAction="#handleOpenProject" text="Open Project" />
+                        <MenuItem mnemonicParsing="false" onAction="#handleCloseProject" text="Close Project" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" onAction="#handleCreateConfig" text="Create Config" />
+                        <MenuItem mnemonicParsing="false" onAction="#handleEditConfig" text="Edit Config" />
+                        <MenuItem mnemonicParsing="false" onAction="#handleExportConfig" text="Export Config" />
+                        <MenuItem mnemonicParsing="false" onAction="#handleDeleteConfig" text="Delete Config" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" onAction="#handleQuit" text="Quit" />
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Help">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="About" onAction="#handleAbout" />
+                        <MenuItem mnemonicParsing="false" text="User Manual" onAction="#handleUserManual" />
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+
+        <SplitPane fx:id="mainSplitPane" dividerPositions="0.2, 0.7506" focusTraversable="true" VBox.vgrow="ALWAYS">
+            <items>
+                <TreeView fx:id="projectTreeView" prefHeight="551.0" prefWidth="264.0" SplitPane.resizableWithParent="false"/>
+
+                <TabPane fx:id="editorTabPane" prefHeight="551.0" prefWidth="487.0" tabClosingPolicy="ALL_TABS" tabDragPolicy="REORDER" tabMaxWidth="200" tabMinWidth="100">
+                    <tabs>
+                        <!-- tabs inserted dynamically -->
+                    </tabs>
+                </TabPane>
+
+                <BorderPane maxWidth="-Infinity" minWidth="-Infinity" prefHeight="551.0" prefWidth="196.0" SplitPane.resizableWithParent="false">
+                    <center>
+                        <ScrollPane fitToHeight="true" minWidth="-Infinity" nodeOrientation="RIGHT_TO_LEFT" prefHeight="526.0" prefWidth="199.0" BorderPane.alignment="TOP_RIGHT">
+                            <content>
+                                <HBox alignment="TOP_RIGHT" prefHeight="524.0" prefWidth="195.0">
+                                    <children>
+                                        <VBox prefHeight="524.0" prefWidth="217.0" HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <TableView fx:id="resultsTableView" nodeOrientation="LEFT_TO_RIGHT" prefHeight="524.0" prefWidth="250.0" VBox.vgrow="ALWAYS">
+                                                    <placeholder>
+                                                        <Label text="Open a project and then click 'Check' to see results of students." wrapText="true" prefWidth="125" />
+                                                    </placeholder>
+                                                </TableView>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+                            </content>
+                        </ScrollPane>
+                    </center>
+
+                    <bottom>
+                        <HBox alignment="TOP_RIGHT" prefHeight="25.0" prefWidth="178.0" BorderPane.alignment="CENTER">
+                            <children>
+                                <Button mnemonicParsing="false" prefHeight="11.0" prefWidth="52.0" text="Check" onAction="#handleCheck">
+                                    <HBox.margin>
+                                        <Insets right="2.0" />
+                                    </HBox.margin>
+                                </Button>
+                            </children>
+                        </HBox>
+                    </bottom>
+                </BorderPane>
+            </items>
+        </SplitPane>
+
+        <HBox id="HBox" alignment="CENTER_LEFT" spacing="5.0" VBox.vgrow="NEVER">
+            <children>
+                <Label fx:id="leftStatusLabel" maxHeight="1.7976931348623157E308" maxWidth="-1.0" text="Left status" HBox.hgrow="ALWAYS">
+                    <font>
+                        <Font size="11.0" fx:id="statusFont" />
+                    </font>
+                    <textFill>
+                        <Color red="0.625" green="0.625" blue="0.625" fx:id="statusColor" />
+                    </textFill>
+                </Label>
+                <Pane prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS" />
+                <Label fx:id="rightStatusLabel" font="$statusFont" maxWidth="-1.0" text="Right status" textFill="$statusColor" HBox.hgrow="NEVER" />
+            </children>
+            <padding>
+                <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+            </padding>
+        </HBox>
+    </children>
+</VBox>
