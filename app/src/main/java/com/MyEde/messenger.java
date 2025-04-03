@@ -3,8 +3,8 @@ package com.MyEde;
 // Singleton class to manage communication between different controllers
 public class messenger {
     private static messenger uniqueInstance;
-    private Controller mainController;
-    private PopupController alertController;
+    private MainController mainController;
+    private WindowController windowController;
 
     private messenger() {}
 
@@ -15,21 +15,21 @@ public class messenger {
         return uniqueInstance;
     }
 
-    public Controller getMainController() {
+    public MainController getMainController() {
         return mainController;
     }
 
-    public void registerMainController(Controller controller) {
+    public void registerMainController(MainController controller) {
         if (this.mainController == null)
             this.mainController = controller;
     }
 
-    public PopupController getAlertController() {
-        return alertController;
+    public WindowController getWindowController() {
+        return windowController;
     }
 
-    public void registerAlertController(PopupController popupController) {
-        if (this.alertController == null || popupController == null)
-            this.alertController = popupController;
+    public void registerAlertController(WindowController popupController) {
+        if (this.windowController == null || popupController == null)
+            this.windowController = popupController;
     }
 }
