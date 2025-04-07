@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.Scene?>
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
+
+<Scene xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.MyEde.PopupController">
+    <VBox prefWidth="600.0" prefHeight="520.0" spacing="10">
+        <padding>
+            <Insets top="15.0" right="20.0" bottom="5.0" left="20.0"/>
+        </padding>
+        <children>
+            <!-- Title -->
+            <Label text="New Config Setup">
+                <font>
+                    <Font size="18.0"/>
+                </font>
+                <VBox.margin>
+                    <Insets bottom="20.0"/>
+                </VBox.margin>
+            </Label>
+
+            <!-- Config Name -->
+            <AnchorPane>
+                <children>
+                    <Label layoutX="10.0" layoutY="8.0" text="File Name"/>
+                    <TextField fx:id="configFileName" layoutX="170.0" layoutY="4.0" prefWidth="320.0" promptText="ExampleConfig"/>
+                </children>
+            </AnchorPane>
+
+            <!-- Language Selection -->
+            <AnchorPane>
+                <children>
+                    <Label layoutX="10.0" layoutY="8.0" text="Select Language"/>
+                    <ChoiceBox fx:id="languageChoice" layoutX="170.0" layoutY="4.0" prefWidth="110.0" value="C">
+                        <items>
+                            <FXCollections fx:factory="observableArrayList">
+                                <String fx:value="C"/>
+                                <String fx:value="C++"/>
+                                <String fx:value="Java"/>
+                                <String fx:value="Python"/>
+                            </FXCollections>
+                        </items>
+                    </ChoiceBox>
+                </children>
+            </AnchorPane>
+
+            <!-- Program Arguments -->
+            <AnchorPane>
+                <children>
+                    <Label layoutX="10.0" layoutY="8.0" text="Input Arguments"/>
+                    <TextField fx:id="projectArguments" layoutX="170.0" layoutY="4.0" prefWidth="320.0" promptText="file.txt,userID,42,..."/>
+                </children>
+            </AnchorPane>
+
+            <!-- Expected Output -->
+            <AnchorPane>
+                <children>
+                    <Label layoutX="10.0" layoutY="8.0" text="Expected Result"/>
+                    <TextArea fx:id="expectedOutput" layoutX="170.0" layoutY="4.0" prefWidth="320.0" prefHeight="200.0" promptText="Expected console output here..."/>
+                </children>
+            </AnchorPane>
+
+            <!-- Save Location -->
+            <AnchorPane>
+                <children>
+                    <Label layoutX="10.0" layoutY="8.0" text="Directory"/>
+                    <TextField fx:id="destinationPath" layoutX="170.0" layoutY="4.0" prefWidth="320.0" promptText="D:/Configs/">
+                        <cursor>
+                            <Cursor fx:constant="DEFAULT"/>
+                        </cursor>
+                    </TextField>
+                    <Button fx:id="destinationPathButton" layoutX="504.0" layoutY="4.0" text="Browse" onAction="#onExploreButtonClicked"/>
+                </children>
+            </AnchorPane>
+
+            <!-- Submit Button -->
+            <AnchorPane>
+                <children>
+                    <Button fx:id="createButton" layoutX="450.0" layoutY="9.0" prefWidth="110.0" prefHeight="34.0" text="Generate" onAction="#onCreateButtonClickedNewConfig"/>
+                </children>
+            </AnchorPane>
+        </children>
+    </VBox>
+</Scene>
