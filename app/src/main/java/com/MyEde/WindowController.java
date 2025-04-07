@@ -1,7 +1,10 @@
 package com.MyEde;
 
+import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+
+import java.io.IOException;
 
 public class WindowController {
 
@@ -28,6 +31,28 @@ public class WindowController {
     public Button configFilePathEditButton;
     public TextField configFilePathForDelete;
     public Button configFilePathDeleteButton;
+
+
+    @FXML
+    protected void onRadioButtonClicked()  {
+
+    }@FXML
+    protected void onExploreButtonClicked()  {
+
+    }@FXML
+    protected void onCreateButtonClicked()  {
+
+    }@FXML
+    protected void onSaveButtonClicked()  {
+
+    }@FXML
+    protected void onDeleteButtonClicked()  {
+
+    }@FXML
+    protected void onCreateButtonClickedNewConfig()  {
+
+    }
+
 
 
 }
