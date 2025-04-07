@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.Scene?>
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
+
+<Scene xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.MyEde.WindowController">
+    <VBox prefWidth="600.0" prefHeight="670.0" spacing="10">
+        <padding>
+            <Insets top="15.0" bottom="5.0" left="20.0" right="20.0" />
+        </padding>
+        <children>
+            <Label text="Start New Assignment">
+                <font>
+                    <Font size="18.0"/>
+                </font>
+                <VBox.margin>
+                    <Insets bottom="20.0"/>
+                </VBox.margin>
+            </Label>
+
+            <!-- Project Name -->
+            <AnchorPane prefHeight="40.0">
+                <children>
+                    <Label layoutX="10.0" layoutY="8.0" text="Name"/>
+                    <TextField fx:id="fieldProjectTitle" layoutX="170.0" layoutY="4.0" prefWidth="320.0" />
+                </children>
+            </AnchorPane>
+
+            <!-- Config Type -->
+            <AnchorPane prefHeight="40.0">
+                <children>
+                    <Label layoutX="10.0" layoutY="8.0" text="Configuration"/>
+                    <RadioButton fx:id="radioCreateMode" layoutX="170.0" layoutY="8.0" text="Create New" onAction="#onRadioButtonClicked"/>
+                    <RadioButton fx:id="radioLoadMode" layoutX="270.0" layoutY="8.0" text="Use Existing" onAction="#onRadioButtonClicked"/>
+                </children>
+            </AnchorPane>
+
+            <!-- Dynamic Config Panels -->
+            <AnchorPane>
+                <children>
+                    <!-- New Configuration Fields -->
+                    <VBox fx:id="vboxCreateSection" spacing="10" visible="false">
+                        <children>
+                            <AnchorPane>
+                                <children>
+                                    <Label layoutX="10.0" layoutY="8.0" text="Language"/>
+                                    <ChoiceBox fx:id="languageChoice" layoutX="170.0" layoutY="4.0" prefWidth="100.0" value="C">
+                                        <items>
+                                            <FXCollections fx:factory="observableArrayList">
+                                                <String fx:value="C"/>
+                                                <String fx:value="C++"/>
+                                                <String fx:value="Java"/>
+                                                <String fx:value="Python"/>
+                                            </FXCollections>
+                                        </items>
+                                    </ChoiceBox>
+                                </children>
+                            </AnchorPane>
+
+                            <AnchorPane>
+                                <children>
+                                    <Label layoutX="10.0" layoutY="8.0" text="File Name"/>
+                                    <TextField fx:id="configFileName" layoutX="170.0" layoutY="4.0" prefWidth="320.0" promptText="ExampleConfig"/>
+                                </children>
+                            </AnchorPane>
+
+                            <AnchorPane>
+                                <children>
+                                    <Label layoutX="10.0" layoutY="8.0" text="Arguments"/>
+                                    <TextField fx:id="projectArguments" layoutX="170.0" layoutY="4.0" prefWidth="320.0" promptText="e.g., Alice,Bob,42"/>
+                                </children>
+                            </AnchorPane>
+
+                            <AnchorPane>
+                                <children>
+                                    <Label layoutX="10.0" layoutY="8.0" text="Expected Result"/>
+                                    <TextArea fx:id="expectedOutput" layoutX="170.0" layoutY="4.0" prefHeight="186.0" prefWidth="320.0"/>
+                                </children>
+                            </AnchorPane>
+                        </children>
+                    </VBox>
+
+                    <!-- Import Configuration -->
+                    <VBox fx:id="vboxImportSection" spacing="10" visible="false">
+                        <children>
+                            <AnchorPane>
+                                <children>
+                                    <Label layoutX="10.0" layoutY="8.0" text="Import Path"/>
+                                    <TextField fx:id="fieldConfigPath" layoutX="170.0" layoutY="4.0" prefWidth="320.0" promptText="C:/Users/"/>
+                                    <Button fx:id="configFilePathButton" layoutX="504.0" layoutY="4.0" text="Browse" onAction="#onExploreButtonClicked"/>
+                                </children>
+                            </AnchorPane>
+                        </children>
+                    </VBox>
+                </children>
+            </AnchorPane>
+
+            <!-- Save Destination -->
+            <AnchorPane>
+                <children>
+                    <Label layoutX="10.0" layoutY="8.0" text="Destination"/>
+                    <TextField fx:id="projectDestinationPath" layoutX="170.0" layoutY="4.0" prefWidth="320.0" promptText="../Tasks/">
+                        <cursor>
+                            <Cursor fx:constant="DEFAULT"/>
+                        </cursor>
+                    </TextField>
+                    <Button fx:id="projectDestinationPathButton" layoutX="504.0" layoutY="4.0" text="Browse" onAction="#onExploreButtonClicked"/>
+                </children>
+            </AnchorPane>
+
+            <!-- Zip Folder -->
+            <AnchorPane>
+                <children>
+                    <Label layoutX="10.0" layoutY="8.0" wrapText="true" maxWidth="150.0" text="Select Directory with ZIPs"/>
+                    <TextField fx:id="zipFilePath" layoutX="170.0" layoutY="4.0" prefWidth="320.0" promptText="ZipFiles/"/>
+                    <Button fx:id="zipFilePathButton" layoutX="504.0" layoutY="4.0" text="Browse" onAction="#onExploreButtonClicked"/>
+                </children>
+            </AnchorPane>
+
+            <!-- Submit Button -->
+            <AnchorPane>
+                <children>
+                    <Button fx:id="createButton" layoutX="450.0" layoutY="9.0" prefWidth="110.0" prefHeight="34.0" text="Launch" onAction="#onCreateButtonClicked"/>
+                </children>
+            </AnchorPane>
+        </children>
+    </VBox>
+</Scene>
