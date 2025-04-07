@@ -1,16 +1,16 @@
 package com.MyEde;
 
 // Singleton class to manage communication between different controllers
-public class messenger {
-    private static messenger uniqueInstance;
+public class Messenger {
+    private static Messenger uniqueInstance;
     private MainController mainController;
     private WindowController windowController;
 
-    private messenger() {}
+    private Messenger() {}
 
-    public static messenger getInstance() {
+    public static Messenger getInstance() {
         if (uniqueInstance == null) {
-            uniqueInstance = new messenger();
+            uniqueInstance = new Messenger();
         }
         return uniqueInstance;
     }

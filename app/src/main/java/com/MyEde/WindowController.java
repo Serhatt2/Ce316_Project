@@ -4,6 +4,10 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.io.IOException;
+
 public class WindowController {
 
     public RadioButton radioCreateMode;
@@ -32,13 +36,26 @@ public class WindowController {
 
 
     @FXML
-    protected void onRadioButtonClicked()  {
+    protected void onRadioButtonClicked(ActionEvent event)  {
+        if (event.getSource().equals(radioCreateMode)) {
+            vboxImportSection.setVisible(false);
+            vboxCreateSection.setVisible(true);
+            radioCreateMode.setSelected(true);
+            radioCreateMode.setSelected(false);
+        }
+        else {
+            vboxImportSection.setVisible(true);
+            vboxCreateSection.setVisible(false);
+            radioCreateMode.setSelected(false);
+            radioLoadMode.setSelected(true);
+        }
 
     }@FXML
     protected void handleBrowseConfigFile()  {
 
+
     }@FXML
-    protected void handleCreateProject()  {
+    protected void handleCreateProject() throws IOException {
 
     }@FXML
     protected void handleSaveConfig()  {
@@ -50,7 +67,6 @@ public class WindowController {
     protected void handleCreateFromTemplate()  {
 
     }
-
 
 
 }
