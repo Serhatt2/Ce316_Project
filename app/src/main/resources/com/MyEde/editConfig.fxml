@@ -28,15 +28,15 @@
                     <children>
                         <Label layoutX="10.0" layoutY="8.0" text="Path to Config"/>
                         <TextField fx:id="fieldConfigPath" layoutX="160.0" layoutY="4.0" prefWidth="320.0" prefHeight="25.0" promptText="C:/User/"/>
-                        <Button fx:id="configFilePathEditButton" layoutX="495.0" layoutY="4.0" text="Browse" onAction="#onExploreButtonClicked"/>
+                        <Button fx:id="btnBrowseEditConfig" layoutX="495.0" layoutY="4.0" text="Browse" onAction="#handleBrowseConfigFile"/>
                     </children>
                 </AnchorPane>
 
-                <VBox fx:id="editConfigVBox" spacing="10" visible="false">
+                <VBox fx:id="vboxEditSection" spacing="10" visible="false">
                     <AnchorPane prefHeight="40.0">
                         <children>
                             <Label layoutX="10.0" layoutY="8.0" text="Language"/>
-                            <ChoiceBox fx:id="languageChoice" layoutX="160.0" layoutY="4.0" prefWidth="110.0" value="C">
+                            <ChoiceBox fx:id="choiceLangSelect" layoutX="160.0" layoutY="4.0" prefWidth="110.0" value="C">
                                 <items>
                                     <FXCollections fx:factory="observableArrayList">
                                         <String fx:value="C"/>
@@ -52,21 +52,21 @@
                     <AnchorPane prefHeight="40.0">
                         <children>
                             <Label layoutX="10.0" layoutY="8.0" text="Arguments"/>
-                            <TextField fx:id="projectArguments" layoutX="160.0" layoutY="4.0" prefWidth="320.0" prefHeight="25.0" promptText="example: Joe,Allen,123,Car"/>
+                            <TextField fx:id="fieldCmdArgs" layoutX="160.0" layoutY="4.0" prefWidth="320.0" prefHeight="25.0" promptText="example: Joe,Allen,123,Car"/>
                         </children>
                     </AnchorPane>
 
                     <AnchorPane prefHeight="200.0">
                         <children>
                             <Label layoutX="10.0" layoutY="8.0" text="Output"/>
-                            <TextArea fx:id="expectedOutput" layoutX="160.0" layoutY="4.0" prefWidth="320.0" prefHeight="180.0" promptText="example: Hello, World!"/>
+                            <TextArea fx:id="areaExpectedOutput" layoutX="160.0" layoutY="4.0" prefWidth="320.0" prefHeight="180.0" promptText="example: Hello, World!"/>
                         </children>
                     </AnchorPane>
                 </VBox>
 
                 <AnchorPane prefHeight="40.0">
                     <children>
-                        <Button fx:id="saveButton" layoutX="450.0" layoutY="5.0" prefWidth="110.0" prefHeight="30.0" text="Save" onAction="#onSaveButtonClicked"/>
+                        <Button fx:id="saveButton" layoutX="450.0" layoutY="5.0" prefWidth="110.0" prefHeight="30.0" text="Save" onAction="#handleSaveConfig"/>
                     </children>
                 </AnchorPane>
             </children>

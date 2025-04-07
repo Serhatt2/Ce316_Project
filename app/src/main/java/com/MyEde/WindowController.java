@@ -4,8 +4,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 
-import java.io.IOException;
-
 public class WindowController {
 
     public RadioButton radioCreateMode;
@@ -14,42 +12,42 @@ public class WindowController {
     public VBox vboxCreateSection;
     public TextField fieldConfigPath;
     public TextField fieldProjectTitle;
-    public TextField zipFilePath;
-    public ChoiceBox languageChoice;
-    public TextField projectArguments;
-    public TextField projectDestinationPath;
-    public Button configFilePathButton;
-    public Button projectDestinationPathButton;
-    public Button zipFilePathButton;
-    public TextArea expectedOutput;
-    public TextField configFileName;
-    public TextField destinationPath;
-    public Button destinationPathButton;
-    public VBox editConfigVBox;
-    public TextField compCommand;
-    public TextField runCommand;
-    public Button configFilePathEditButton;
-    public TextField configFilePathForDelete;
-    public Button configFilePathDeleteButton;
+    public TextField fieldZipInput;
+    public ChoiceBox choiceLangSelect;
+    public TextField fieldCmdArgs;
+    public TextField fieldProjectTarget;
+    public Button btnBrowseConfig;
+    public Button btnBrowseTarget;
+    public Button btnBrowseZip;
+    public TextArea areaExpectedOutput;
+    public TextField fieldNewConfigName;
+    public TextField fieldNewDestDir;
+    public Button btnPickDestDir;
+    public VBox vboxEditSection;
+    public TextField fieldCompileCmd;
+    public TextField fieldExecuteCmd;
+    public Button btnBrowseEditConfig;
+    public TextField fieldDeletePath;
+    public Button btnDeleteConfig;
 
 
     @FXML
     protected void onRadioButtonClicked()  {
 
     }@FXML
-    protected void onExploreButtonClicked()  {
+    protected void handleBrowseConfigFile()  {
 
     }@FXML
-    protected void onCreateButtonClicked()  {
+    protected void handleCreateProject()  {
 
     }@FXML
-    protected void onSaveButtonClicked()  {
+    protected void handleSaveConfig()  {
 
     }@FXML
-    protected void onDeleteButtonClicked()  {
+    protected void handleDeleteConfig()  {
 
     }@FXML
-    protected void onCreateButtonClickedNewConfig()  {
+    protected void handleCreateFromTemplate()  {
 
     }
 

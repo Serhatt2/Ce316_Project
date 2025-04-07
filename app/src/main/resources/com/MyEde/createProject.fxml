@@ -50,7 +50,7 @@
                             <AnchorPane>
                                 <children>
                                     <Label layoutX="10.0" layoutY="8.0" text="Language"/>
-                                    <ChoiceBox fx:id="languageChoice" layoutX="170.0" layoutY="4.0" prefWidth="100.0" value="C">
+                                    <ChoiceBox fx:id="choiceLangSelect" layoutX="170.0" layoutY="4.0" prefWidth="100.0" value="C">
                                         <items>
                                             <FXCollections fx:factory="observableArrayList">
                                                 <String fx:value="C"/>
@@ -66,21 +66,21 @@
                             <AnchorPane>
                                 <children>
                                     <Label layoutX="10.0" layoutY="8.0" text="File Name"/>
-                                    <TextField fx:id="configFileName" layoutX="170.0" layoutY="4.0" prefWidth="320.0" promptText="ExampleConfig"/>
+                                    <TextField fx:id="fieldNewConfigName" layoutX="170.0" layoutY="4.0" prefWidth="320.0" promptText="ExampleConfig"/>
                                 </children>
                             </AnchorPane>
 
                             <AnchorPane>
                                 <children>
                                     <Label layoutX="10.0" layoutY="8.0" text="Arguments"/>
-                                    <TextField fx:id="projectArguments" layoutX="170.0" layoutY="4.0" prefWidth="320.0" promptText="e.g., Alice,Bob,42"/>
+                                    <TextField fx:id="fieldCmdArgs" layoutX="170.0" layoutY="4.0" prefWidth="320.0" promptText="e.g., Alice,Bob,42"/>
                                 </children>
                             </AnchorPane>
 
                             <AnchorPane>
                                 <children>
                                     <Label layoutX="10.0" layoutY="8.0" text="Expected Result"/>
-                                    <TextArea fx:id="expectedOutput" layoutX="170.0" layoutY="4.0" prefHeight="186.0" prefWidth="320.0"/>
+                                    <TextArea fx:id="areaExpectedOutput" layoutX="170.0" layoutY="4.0" prefHeight="186.0" prefWidth="320.0"/>
                                 </children>
                             </AnchorPane>
                         </children>
@@ -93,7 +93,7 @@
                                 <children>
                                     <Label layoutX="10.0" layoutY="8.0" text="Import Path"/>
                                     <TextField fx:id="fieldConfigPath" layoutX="170.0" layoutY="4.0" prefWidth="320.0" promptText="C:/Users/"/>
-                                    <Button fx:id="configFilePathButton" layoutX="504.0" layoutY="4.0" text="Browse" onAction="#onExploreButtonClicked"/>
+                                    <Button fx:id="btnBrowseConfig" layoutX="504.0" layoutY="4.0" text="Browse" onAction="#handleBrowseConfigFile"/>
                                 </children>
                             </AnchorPane>
                         </children>
@@ -105,12 +105,12 @@
             <AnchorPane>
                 <children>
                     <Label layoutX="10.0" layoutY="8.0" text="Destination"/>
-                    <TextField fx:id="projectDestinationPath" layoutX="170.0" layoutY="4.0" prefWidth="320.0" promptText="../Tasks/">
+                    <TextField fx:id="fieldProjectTarget" layoutX="170.0" layoutY="4.0" prefWidth="320.0" promptText="../Tasks/">
                         <cursor>
                             <Cursor fx:constant="DEFAULT"/>
                         </cursor>
                     </TextField>
-                    <Button fx:id="projectDestinationPathButton" layoutX="504.0" layoutY="4.0" text="Browse" onAction="#onExploreButtonClicked"/>
+                    <Button fx:id="btnBrowseTarget" layoutX="504.0" layoutY="4.0" text="Browse" onAction="#handleBrowseConfigFile"/>
                 </children>
             </AnchorPane>
 
@@ -118,15 +118,15 @@
             <AnchorPane>
                 <children>
                     <Label layoutX="10.0" layoutY="8.0" wrapText="true" maxWidth="150.0" text="Select Directory with ZIPs"/>
-                    <TextField fx:id="zipFilePath" layoutX="170.0" layoutY="4.0" prefWidth="320.0" promptText="ZipFiles/"/>
-                    <Button fx:id="zipFilePathButton" layoutX="504.0" layoutY="4.0" text="Browse" onAction="#onExploreButtonClicked"/>
+                    <TextField fx:id="fieldZipInput" layoutX="170.0" layoutY="4.0" prefWidth="320.0" promptText="ZipFiles/"/>
+                    <Button fx:id="btnBrowseZip" layoutX="504.0" layoutY="4.0" text="Browse" onAction="#handleBrowseConfigFile"/>
                 </children>
             </AnchorPane>
 
             <!-- Submit Button -->
             <AnchorPane>
                 <children>
-                    <Button fx:id="createButton" layoutX="450.0" layoutY="9.0" prefWidth="110.0" prefHeight="34.0" text="Launch" onAction="#onCreateButtonClicked"/>
+                    <Button fx:id="createButton" layoutX="450.0" layoutY="9.0" prefWidth="110.0" prefHeight="34.0" text="Launch" onAction="#handleCreateProject"/>
                 </children>
             </AnchorPane>
         </children>

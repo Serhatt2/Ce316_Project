@@ -27,14 +27,14 @@
                 <AnchorPane prefHeight="34.0">
                     <children>
                         <Label layoutX="10.0" layoutY="8.0" text="File Location"/>
-                        <TextField fx:id="configFilePathForDelete" layoutX="160.0" layoutY="4.0" prefWidth="320.0" prefHeight="25.0" promptText="C:/User/"/>
-                        <Button fx:id="configFilePathDeleteButton" layoutX="495.0" layoutY="4.0" text="Browse" onAction="#onExploreButtonClicked"/>
+                        <TextField fx:id="fieldDeletePath" layoutX="160.0" layoutY="4.0" prefWidth="320.0" prefHeight="25.0" promptText="C:/User/"/>
+                        <Button fx:id="btnDeleteConfig" layoutX="495.0" layoutY="4.0" text="Browse" onAction="#handleBrowseConfigFile"/>
                     </children>
                 </AnchorPane>
 
                 <AnchorPane prefHeight="40.0">
                     <children>
-                        <Button fx:id="deleteButton" layoutX="450.0" layoutY="5.0" prefWidth="110.0" prefHeight="30.0" text="Remove" onAction="#onDeleteButtonClicked"/>
+                        <Button fx:id="deleteButton" layoutX="450.0" layoutY="5.0" prefWidth="110.0" prefHeight="30.0" text="Remove" onAction="#handleDeleteConfig"/>
                     </children>
                 </AnchorPane>
             </children>
