@@ -3,8 +3,6 @@ package com.MyEde;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
-
-import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 

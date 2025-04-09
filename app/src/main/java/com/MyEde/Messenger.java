@@ -19,17 +19,17 @@ public class Messenger {
         return mainController;
     }
 
-    public void registerMainController(MainController controller) {
+    public void setMainController(MainController mainController) {
         if (this.mainController == null)
-            this.mainController = controller;
+            this.mainController = mainController;
     }
 
     public WindowController getWindowController() {
         return windowController;
     }
 
-    public void registerAlertController(WindowController popupController) {
-        if (this.windowController == null || popupController == null)
-            this.windowController = popupController;
+    public void setWindowController(WindowController WindowController) {
+        if (this.windowController == null || WindowController == null)
+            this.windowController = WindowController;
     }
 }
