@@ -4,18 +4,17 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
-
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
 public class MainController {
 
     @FXML
@@ -30,6 +29,42 @@ public class MainController {
     public TreeView<FileItem> projectTreeView;
     private File filePath;
     protected ArrayList<String> fileContent = new ArrayList<>();
+
+    protected void extractZip(File zip) throws IOException {
+        String dir = zip.getParent()+File.separator+zip.getName().replaceAll("\\.zip$", "");
+        byte[] buffer = new byte[1024];
+        ZipInputStream inputStream = new ZipInputStream(new FileInputStream(zip));
+        try {
+            ZipEntry entry = inputStream.getNextEntry();
+            while (entry != null) {
+                File output = new File(dir, entry.getName());
+                new File(output.getParent()).mkdirs();
+
+                FileOutputStream fos = null;
+                try {
+                    fos = new FileOutputStream(output);
+                    int length;
+                    while ((length = inputStream.read(buffer)) > 0) {
+                        fos.write(buffer, 0, length);
+                    }
+                } finally {
+                    if (fos != null) {
+                        try {
+                            fos.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                entry = inputStream.getNextEntry();
+            }
+            inputStream.closeEntry();
+        } finally {
+            inputStream.close();
+        }
+        zip.delete();
+        refreshTreeView();
+    }
 
 
     @FXML
@@ -246,5 +281,14 @@ public class MainController {
         }
         Tab newTab = new Tab(tittle,textArea);
         editorTabPane.getTabs().add(newTab);
+    }
+
+    protected void removeFile(File file){
+        file.delete();
+        refreshTreeView();
+    }
+
+    protected void refreshTreeView() {
+        //Daha doldurulacak
     }
 }
