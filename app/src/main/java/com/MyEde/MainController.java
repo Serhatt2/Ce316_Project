@@ -1,19 +1,18 @@
 package com.MyEde;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Scanner;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -27,10 +26,10 @@ public class MainController {
     @FXML
     private TabPane editorTabPane;
     private File InitDir;
-    private final ArrayList<String> supportedFileExtensions = new ArrayList<>(Arrays.asList("txt", "java", "c", "cpp", "py", "json", "csv"));
+    private final ArrayList<String> supportedExtensions = new ArrayList<>(Arrays.asList("txt", "java", "c", "cpp", "py", "json", "csv"));
     public TreeView<FileItem> projectTreeView;
     private File filePath;
-
+    protected ArrayList<String> fileContent = new ArrayList<>();
 
 
     @FXML
@@ -203,7 +202,49 @@ public class MainController {
         Files.write(Paths.get(filePath), root.toString(4).getBytes());
     }
 
+    private void fillTreeView(TreeItem<FileItem> Item) {
+        File file = Item.getValue().file();
+        if (!file.isDirectory()) return;
 
+        File[] childs = file.listFiles();
+        if (childs == null) return;
 
+        for (File child : childs) {
+            TreeItem<FileItem> childItem = new TreeItem<>(new FileItem(child));
+            Item.getChildren().add(childItem);
+            fillTreeView(childItem);
+        }
+    }
 
+    private boolean loadFileContent(File file) {
+        fileContent.clear();
+        if (!file.isFile()) {
+            return false;
+        }
+        String fileName = file.getName();
+        int index = fileName.lastIndexOf('.'); //index of the dot
+        if (index == -1 || index == fileName.length() - 1) {return false;}
+        String extension = fileName.substring(index+1).toLowerCase(); //noktadan sonrasını alıyor
+        if (!supportedExtensions.contains(extension)) {return false;}
+
+        try (Scanner reader = new Scanner(file)){
+            while (reader.hasNextLine()) {
+                fileContent.add(reader.nextLine());
+            }
+            return true;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private void loadTabPane(String tittle) {
+        TextArea textArea = new TextArea();
+        textArea.setEditable(false);
+        for (String a: fileContent) {
+            textArea.appendText(a + "\n");
+        }
+        Tab newTab = new Tab(tittle,textArea);
+        editorTabPane.getTabs().add(newTab);
+    }
 }
