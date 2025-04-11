@@ -2,14 +2,19 @@ package com.MyEde;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseButton;
 import javafx.stage.Stage;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.json.JSONArray;
@@ -29,6 +34,7 @@ public class MainController {
     public TreeView<FileItem> projectTreeView;
     private File filePath;
     protected ArrayList<String> fileContent = new ArrayList<>();
+    private ContextMenu treeViewContextMenu;
 
     protected void extractZip(File zip) throws IOException {
         String dir = zip.getParent()+File.separator+zip.getName().replaceAll("\\.zip$", "");
@@ -63,7 +69,7 @@ public class MainController {
             inputStream.close();
         }
         zip.delete();
-        refreshTreeView();
+        reloadTree();
     }
 
 
@@ -273,6 +279,44 @@ public class MainController {
         }
     }
 
+    protected void buildNewProject(String targetDir, String name,
+                                   boolean useExistingConfig, String configFileName,
+                                   String language, String zipDir,
+                                   String existingConfigPath, String arguments,
+                                   String expectedOutput) throws IOException {
+        File newFolder = new File(targetDir+File.separator + name);
+        if (!newFolder.exists()) {
+            if (newFolder.mkdirs()) {
+                InitDir = newFolder;
+            }
+        }
+
+        if (!useExistingConfig) {
+            moveToDir(buildConfigFile(configFileName,language,arguments,expectedOutput),targetDir+File.separator+name);
+        } else {
+            File configFile = new File(existingConfigPath);
+            Path srcPath = Path.of(existingConfigPath);
+            Path destination = Path.of(targetDir+File.separator+name+File.separator+configFile.getName());
+            try {
+                Files.copy(srcPath,destination,StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e) {
+                System.out.println("Failed to copy file: " + e.getMessage());
+            }
+        }
+        File zipFolder = new File(zipDir);
+        File[] zips = zipFolder.listFiles();
+        assert zips != null;
+        for (File zip : zips) {
+            zip.renameTo(new File(targetDir+File.separator+name+File.separator+zip.getName()));
+        }
+        TreeItem<FileItem> rootItem = new TreeItem<>(new FileItem(newFolder.getAbsoluteFile()));
+        rootItem.setExpanded(true);
+        projectTreeView.setRoot(rootItem);
+        fillTreeView(rootItem);
+        setupTreeView();
+    }
+
+
     private void loadTabPane(String tittle) {
         TextArea textArea = new TextArea();
         textArea.setEditable(false);
@@ -285,10 +329,124 @@ public class MainController {
 
     protected void removeFile(File file){
         file.delete();
-        refreshTreeView();
+        reloadTree();
     }
 
-    protected void refreshTreeView() {
-        //Daha doldurulacak
+    protected void reloadTree() {
+        if (InitDir == null) return;
+        TreeItem<FileItem> rootItem = new TreeItem<>(new FileItem(InitDir));
+        rootItem.setExpanded(true);
+        projectTreeView.setRoot(rootItem);
+        fillTreeView(rootItem);
+        setupTreeView();
+    }
+
+    private void setupTreeView() {
+        projectTreeView.setOnMouseClicked(event -> {
+            if (treeViewContextMenu != null) {
+                treeViewContextMenu.hide();
+            }
+
+            Pattern pattern = Pattern.compile("'null'");
+            Matcher matcher = pattern.matcher(event.getTarget().toString());
+            if (matcher.find()) {
+                projectTreeView.getSelectionModel().clearSelection();
+                return;
+            }
+
+            if (event.getClickCount() == 2 && event.getButton() == MouseButton.PRIMARY) {
+                TreeItem<FileItem> selectedItem = projectTreeView.getSelectionModel().getSelectedItem();
+                if (selectedItem != null && selectedItem.getValue() != null) {
+                    if (loadFileContent(selectedItem.getValue().file())) {
+                        loadTabPane(selectedItem.getValue().toString());
+                    }
+                }
+            }
+
+            if (event.getButton() == MouseButton.SECONDARY) {
+                TreeItem<FileItem> selectedItem = projectTreeView.getSelectionModel().getSelectedItem();
+                if (selectedItem != null) {
+                    File file = selectedItem.getValue().file();
+                    ContextMenu contextMenu;
+                    if (file.isFile()) {
+                        String[] splitted = selectedItem.getValue().toString().split("\\.");
+                        String extension = splitted.length > 1 ? splitted[1] : "";
+                        contextMenu = buildContextMenu(extension, true, selectedItem);
+                    } else {
+                        contextMenu = buildContextMenu(null, false, selectedItem);
+                    }
+                    if (contextMenu != null) {
+                        treeViewContextMenu = contextMenu;
+                        contextMenu.show(projectTreeView, event.getScreenX(), event.getScreenY());
+                    }
+                }
+            }
+        });
+    }
+
+    private ContextMenu buildContextMenu(String extension, boolean isFile, TreeItem<FileItem> selectedItem) {
+        if (isFile) {
+            ContextMenu contextMenu = new ContextMenu();
+            MenuItem openItem = new MenuItem("Open");
+            openItem.setOnAction(event -> {
+                if (loadFileContent(selectedItem.getValue().file())) {
+                    loadTabPane(selectedItem.getValue().toString());
+                }
+            });
+
+            MenuItem deleteItem = new MenuItem("Delete");
+            deleteItem.setOnAction(event -> removeFile(selectedItem.getValue().file()));
+
+            MenuItem editItem = new MenuItem("Edit");
+            editItem.setOnAction(event -> {
+                try {
+                    filePath = selectedItem.getValue().file();
+                    handleEditConfig();  //must be implemented
+                    filePath = null;
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            MenuItem unzip = new MenuItem("Unzip");
+            unzip.setOnAction(event -> {
+                try {
+                    extractZip(selectedItem.getValue().file());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            if (extension.equalsIgnoreCase("json")) {
+                contextMenu.getItems().addAll(openItem, editItem, deleteItem);
+            } else if (extension.equalsIgnoreCase("zip")) {
+                contextMenu.getItems().addAll(unzip, deleteItem);
+            } else {
+                contextMenu.getItems().addAll(openItem, deleteItem);
+            }
+            return contextMenu;
+        } else {
+            File selectedDir = selectedItem.getValue().file();
+            if (selectedDir.getAbsoluteFile().toString().equals(InitDir.getAbsoluteFile().toString())) {
+                ContextMenu contextMenu = new ContextMenu();
+                MenuItem unzipAll = new MenuItem("Unzip All");
+                unzipAll.setOnAction(event -> {
+                    try {
+                        FileFilter filter = file -> file.getName().endsWith("zip");
+                        File[] zipFiles = selectedDir.listFiles(filter);
+                        if (zipFiles == null) return;
+                        for (File zip : zipFiles) {
+                            extractZip(zip);
+                        }
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+                contextMenu.getItems().add(unzipAll);
+                return contextMenu;
+            } else {
+                return null;
+            }
+        }
     }
 }
