@@ -92,7 +92,6 @@ public class MainController {
         newProjectStage.initOwner(getPrimaryStage());
         newProjectStage.initModality(Modality.APPLICATION_MODAL);
         newProjectStage.setTitle("New Project");
-        newProjectStage.getIcons().add(new Image(new FileInputStream("img.png")));
         newProjectStage.setResizable(false);
         newProjectStage.setScene(loader.load());
 
@@ -131,7 +130,6 @@ public class MainController {
         window.initOwner(getPrimaryStage());
         window.initModality(Modality.APPLICATION_MODAL);
         window.setTitle("New Project");
-        window.getIcons().add(new Image(new FileInputStream("img.png")));
         window.setResizable(false);
         window.setScene(fxmlLoader.load());
         messenger.setWindowController(fxmlLoader.getController());
@@ -162,7 +160,6 @@ public class MainController {
         window.initOwner(getPrimaryStage());
         window.initModality(Modality.APPLICATION_MODAL);
         window.setTitle("Edit Config File");
-        window.getIcons().add(new Image(new FileInputStream("img.png")));
         window.setResizable(false);
         window.setScene(fxmlLoader.load());
         // This comes after load() function. The reason behind of this, if we set the controller before load it the PopupController will store null
@@ -187,7 +184,6 @@ public class MainController {
         window.initOwner(getPrimaryStage());
         window.initModality(Modality.APPLICATION_MODAL);
         window.setTitle("Create Configuration File");
-        window.getIcons().add(new Image(new FileInputStream("img.png")));
         window.setResizable(false);
         window.setScene(fxmlLoader.load());
         // This comes after load() function. The reason behind of this, if we set the controller before load it the PopupController will store null
@@ -211,7 +207,6 @@ public class MainController {
         window.initOwner(getPrimaryStage());
         window.initModality(Modality.APPLICATION_MODAL);
         window.setTitle("Delete Configuration File");
-        window.getIcons().add(new Image(new FileInputStream("img.png")));
         window.setResizable(false);
         window.setScene(fxmlLoader.load());
         // This comes after load() function. The reason behind of this, if we set the controller before load it the PopupController will store null
