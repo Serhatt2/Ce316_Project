@@ -2,8 +2,10 @@ package com.MyEde;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
@@ -41,6 +43,8 @@ public class MainController {
     private File filePath;
     protected ArrayList<String> fileContent = new ArrayList<>();
     private ContextMenu treeViewContextMenu;
+
+
 
     protected void extractZip(File zip) throws IOException {
         String dir = zip.getParent()+File.separator+zip.getName().replaceAll("\\.zip$", "");
@@ -119,22 +123,76 @@ public class MainController {
 
     @FXML
     protected void handleOpenProject() throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("createProject.fxml"));
+        Messenger messenger = Messenger.getInstance();
+
+        // Scene
+        setPopup(new Stage());
+        window.initOwner(getPrimaryStage());
+        window.initModality(Modality.APPLICATION_MODAL);
+        window.setTitle("New Project");
+        window.getIcons().add(new Image(new FileInputStream("img.png")));
+        window.setResizable(false);
+        window.setScene(fxmlLoader.load());
+        messenger.setWindowController(fxmlLoader.getController());
+        window.showAndWait();
 
     }
 
     @FXML
     protected void handleCloseProject() throws IOException {
+      projectTreeView.setRoot(null);
+        editorTabPane.getTabs().clear();
+        resultsTableView.getColumns().clear();
+        resultsTableView.getItems().clear();
 
     }
 
     @FXML
     protected void handleEditConfig() throws IOException {
 
+        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("editConfig.fxml"));
+        Messenger messenger = Messenger.getInstance();
+        if (messenger.getWindowController() != null) {
+            messenger.setWindowController(null);
+        }
+
+        // Scene
+        setPopup(new Stage());
+        window.initOwner(getPrimaryStage());
+        window.initModality(Modality.APPLICATION_MODAL);
+        window.setTitle("Edit Config File");
+        window.getIcons().add(new Image(new FileInputStream("img.png")));
+        window.setResizable(false);
+        window.setScene(fxmlLoader.load());
+        // This comes after load() function. The reason behind of this, if we set the controller before load it the PopupController will store null
+        messenger.setWindowController(fxmlLoader.getController());
+
+        if (filePath != null) {
+            messenger.getWindowController().fieldConfigPath.setText(filePath.getAbsolutePath());
+            messenger.getWindowController().loadConfigFromJson(filePath);
+        }
+        window.showAndWait();
+
+
     }
 
     @FXML
-    protected void handleCreateConfig(){
+    protected void handleCreateConfig() throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("createConfig.fxml"));
+        Messenger messenger = Messenger.getInstance();
 
+        // Scene
+        setPopup(new Stage());
+        window.initOwner(getPrimaryStage());
+        window.initModality(Modality.APPLICATION_MODAL);
+        window.setTitle("Create Configuration File");
+        window.getIcons().add(new Image(new FileInputStream("img.png")));
+        window.setResizable(false);
+        window.setScene(fxmlLoader.load());
+        // This comes after load() function. The reason behind of this, if we set the controller before load it the PopupController will store null
+        messenger.setWindowController(fxmlLoader.getController());
+        window.showAndWait();
     }
     @FXML
     protected void handleExportConfig() throws IOException {
@@ -490,12 +548,46 @@ public class MainController {
     }
     @FXML
     protected void handleAbout() {
+        String contentText = "n" +
+                "n";
+        showAlert(Alert.AlertType.INFORMATION, "About", "Software Development Team", contentText);
 
     }
 
     @FXML
     protected void handleUserManual() {
+        String filePath = "UserManual.txt";
 
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), "UTF-8"))) {
+            String line;
+            StringBuilder content = new StringBuilder();
+            while ((line = br.readLine()) != null) {
+                content.append(line).append("\n");
+            }
+            showPopupWithContent(content.toString());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void showPopupWithContent(String content) throws FileNotFoundException {
+        Stage popupStage = new Stage();
+        popupStage.setTitle("User Manual");
+        popupStage.getIcons().add(new Image(new FileInputStream("img.png")));
+
+        TextArea textArea = new TextArea(content);
+        textArea.setWrapText(true);
+        textArea.setEditable(false);
+
+        ScrollPane scrollPane = new ScrollPane(textArea);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
+
+        Scene scene = new Scene(scrollPane, 750, 600);
+        popupStage.setScene(scene);
+        popupStage.show();
     }
 
     protected void moveToDir(File file, String newDestDir) {
