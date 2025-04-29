@@ -1,17 +1,23 @@
 package com.MyEde;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.awt.*;
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -75,8 +81,42 @@ public class MainController {
 
     @FXML
     protected void handleNewProject() throws IOException {
+        FXMLLoader loader = new FXMLLoader(Main.class.getResource("createProject.fxml"));
+        Stage newProjectStage = new Stage();
+        Messenger messenger = Messenger.getInstance();
+
+        newProjectStage.initOwner(getPrimaryStage());
+        newProjectStage.initModality(Modality.APPLICATION_MODAL);
+        newProjectStage.setTitle("New Project");
+        newProjectStage.getIcons().add(new Image(new FileInputStream("img.png")));
+        newProjectStage.setResizable(false);
+        newProjectStage.setScene(loader.load());
+
+        messenger.setWindowController(loader.getController());
+        setPopup(newProjectStage);
+
+        newProjectStage.showAndWait();
+
+
+
 
     }
+    public Stage getPopup() {
+        return window;
+    }
+    public void setPopup(Stage window) {
+        this.window = window;
+    }
+
+    public Stage getPrimaryStage() {
+        return primaryStage;
+    }
+
+    public void setPrimaryStage(Stage primaryStage) {
+        this.primaryStage = primaryStage;
+    }
+
+
     @FXML
     protected void handleOpenProject() throws IOException {
 
@@ -97,22 +137,355 @@ public class MainController {
 
     }
     @FXML
-    protected void handleExportConfig(){
+    protected void handleExportConfig() throws IOException {
+        Desktop desk = Desktop.getDesktop();
+        desk.open(new File(Paths.get("").toAbsolutePath() + "/ConfigFiles"));
 
     }
 
     @FXML
-    protected void handleDeleteConfig() {
+    protected void handleDeleteConfig() throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("removeConfig.fxml"));
+       Messenger messenger = Messenger.getInstance();
+
+        // Scene
+        setPopup(new Stage());
+        window.initOwner(getPrimaryStage());
+        window.initModality(Modality.APPLICATION_MODAL);
+        window.setTitle("Delete Configuration File");
+        window.getIcons().add(new Image(new FileInputStream("img.png")));
+        window.setResizable(false);
+        window.setScene(fxmlLoader.load());
+        // This comes after load() function. The reason behind of this, if we set the controller before load it the PopupController will store null
+        messenger.setWindowController(fxmlLoader.getController());
+        window.showAndWait();
 
     }
 
     @FXML
-    protected void handleCheck() {
+    protected void handleCheck() throws IOException {
+        if (projectTreeView == null) {
+            return;
+        }
 
+        if (InitDir == null) {
+            showAlert(Alert.AlertType.WARNING, "Warning", "Project Not Selected", "Please open or create a project.");
+            return;
+        }
+
+        String basePath = InitDir.getAbsolutePath();
+        checkOutputsOfStudents(basePath);
+
+        String resultsCsv = basePath + "/StudentResults.csv";
+
+        resultsTableView.getItems().clear();
+        resultsTableView.getColumns().clear();
+
+        TableColumn<Student, String> studentIdCol = new TableColumn<>("Student ID");
+        studentIdCol.setCellValueFactory(new PropertyValueFactory<>("id"));
+
+        TableColumn<Student, Boolean> studentResultCol = new TableColumn<>("Result");
+        studentResultCol.setCellValueFactory(new PropertyValueFactory<>("result"));
+        studentResultCol.setCellFactory(col -> new TextFieldTableCell<>() {
+            @Override
+            public void updateItem(Boolean value, boolean empty) {
+                super.updateItem(value, empty);
+                if (empty || value == null) {
+                    setText(null);
+                } else {
+                    setText(value ? "pass" : "fail");
+                }
+            }
+        });
+
+        resultsTableView.getColumns().addAll(studentIdCol, studentResultCol);
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(resultsCsv))) {
+            String record;
+            while ((record = reader.readLine()) != null) {
+                String[] fields = record.split(",");
+                if (fields.length > 1) {
+                    boolean isMatch = "Match".equals(fields[1]);
+                    resultsTableView.getItems().add(new Student());
+                }
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
+        reloadTree();
+
+
+    }
+
+    protected void checkOutputsOfStudents(String projectPath) throws IOException {
+        String configOfProject = getJsonFilePath(projectPath);
+        JSONObject projectConfig = getObject(configOfProject, "projectConfig");
+        String expOutput = projectConfig.getString("expectedOutput");
+        String pathOfCSV = projectPath + "/StudentResults.csv";
+        FileWriter writer = new FileWriter(pathOfCSV);
+
+        try {
+            ArrayList<Student> studentList = queryStudents(projectPath);
+            for (Student student: studentList) {
+                if (student.getResult().equals(expOutput)) //student.getOutput().trim().equals(expOutput.trim())
+                    student.setHasPassed(true);
+                else
+                    student.setHasPassed(false);
+
+                saveToCsv(writer, student.getStudentID(),student.getResult());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected ArrayList<Student> queryStudents(String filePath) throws Exception {
+        File configFile = new File(getJsonFilePath(filePath));
+        String configFilePath = configFile.getAbsolutePath();
+        ArrayList<Student> students = new ArrayList<>();
+
+        File directory =new File(filePath);
+        File[] files = directory.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    File[] sourceFiles = file.listFiles();
+
+                    assert sourceFiles != null;
+                    for(File sourceFile: sourceFiles){
+                        if (sourceFile.getName().endsWith(".java")){
+                            Student student = runJava(configFilePath,sourceFile.getAbsolutePath());
+                            student.setStudentID(file.getName());
+                            students.add(student);
+                        }else if (sourceFile.getName().endsWith(".c")){
+                            Student student = cRun(configFilePath,sourceFile.getAbsolutePath());
+                            student.setStudentID(file.getName());
+                            students.add(student);
+                        }else if (sourceFile.getName().endsWith(".py")){
+                            Student student = pythonRun(configFilePath,sourceFile.getAbsolutePath());
+                            student.setStudentID(file.getName());
+                            students.add(student);
+                        } else if (sourceFile.getName().endsWith(".cpp")) {
+                            Student student = cppRun(configFilePath,sourceFile.getAbsolutePath());
+                            student.setStudentID(file.getName());
+                            students.add(student);
+                        }
+                    }
+                }
+            }
+        }
+        return students;
+    }
+
+    public Student cppRun(String configFilePath, String sourceFile){
+        File cppFile = new File(sourceFile);
+        String fileName = cppFile.getName();
+        JSONObject compilerConfig;
+        JSONObject projectConfig;
+
+        try {
+            compilerConfig = getObject(configFilePath, "compilerConfig");
+            projectConfig = getObject(configFilePath, "projectConfig");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        // Extract the base name (without path) and remove .cpp extension
+        String executableName = fileName.substring(0, fileName.length() - 4);
+
+        String[] compileCommand = {
+                compilerConfig.getString("compileCommand"),
+                sourceFile,
+                "-o",
+                cppFile.getParent() + "\\" + executableName
+        };
+
+        JSONArray arguments = projectConfig.getJSONArray("argument");
+        String[] executeCommand = new String[arguments.length() + 1];
+        executeCommand[0] = cppFile.getParent() + "\\" + executableName;
+        for (int i = 0; i < arguments.length(); i++) {
+            executeCommand[i + 1] = arguments.getString(i);
+        }
+
+        return runSCode(compileCommand,executeCommand);
+    }
+
+    public Student pythonRun(String configFilePath, String sourceFile){
+        //python -m py_compile
+        JSONObject compilerConfig = null;
+        JSONObject projectConfig = null;
+        try {
+            compilerConfig = getObject(configFilePath,"compilerConfig");
+            projectConfig = getObject(configFilePath,"projectConfig");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        JSONArray arguments = projectConfig.getJSONArray("argument");
+
+        String[] compileCommand = {compilerConfig.getString("compileCommand")};
+        String[] executeCommand = new String[arguments.length()+2];
+        executeCommand[0] = compilerConfig.getString("runCommand");
+        executeCommand[1] = sourceFile;
+        for (int i = 0; i < arguments.length(); i++) {
+            executeCommand[i+2] = arguments.getString(i);
+        }
+
+        return runSCode(compileCommand,executeCommand);
+
+
+    }
+
+
+    public Student cRun(String configFilePath, String sourceFile){
+        File cFile = new File(sourceFile);
+        String fileName = cFile.getName();
+        JSONObject compilerConfig = null;
+        JSONObject projectConfig = null;
+        try {
+            compilerConfig = getObject(configFilePath,"compilerConfig");
+            projectConfig = getObject(configFilePath,"projectConfig");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        String substring = fileName.substring(0, fileName.length() - 2);
+        String[] compileCommand = {compilerConfig.getString("compileCommand"),sourceFile,"-o", cFile.getParent() + "\\" + substring};
+        JSONArray arguments = projectConfig.getJSONArray("argument");
+        String[] executeCommand = new String[arguments.length()+1];
+        executeCommand[0] = cFile.getParent() + "\\" + substring;
+        for (int i = 0; i < arguments.length(); i++) {
+            executeCommand[i+1] = arguments.getString(i);
+        }
+
+        return runSCode(compileCommand,executeCommand);
+
+    }
+
+    public Student runJava(String configFilePath, String sourceFile){
+
+        JSONObject compilerConfig = null;
+        JSONObject projectConfig = null;
+
+        try {
+            compilerConfig = getObject(configFilePath,"compilerConfig");
+            projectConfig = getObject(configFilePath,"projectConfig");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        String jCompile = compilerConfig.getString("compileCommand");
+        String runCommand = compilerConfig.getString("runCommand");
+
+        String[] compileCommand = {jCompile,sourceFile};
+
+
+        JSONArray arguments = projectConfig.getJSONArray("argument");
+
+        String[] executeCommand = new String[arguments.length()+2];
+        executeCommand[0] = runCommand;
+        executeCommand[1] = sourceFile;
+        for (int i = 0; i < arguments.length(); i++) {
+            executeCommand[i+2] = arguments.getString(i);
+        }
+
+        return runSCode(compileCommand,executeCommand);
+
+
+    }
+
+    public Student runSCode(String[] compilerCommand, String[] executeCommand) {
+
+        Student student = new Student();
+        boolean isCompiled = true;
+        boolean isRan = true;
+        try {
+            if (!Objects.equals(executeCommand[0], "python")) {
+                // Compile the source
+                ProcessBuilder compileProcessBuilder = new ProcessBuilder(compilerCommand);
+                Process compileProcess = compileProcessBuilder.start();
+                compileProcess.waitFor();
+
+                // Check if the compilation was successful
+                if (compileProcess.exitValue() != 0) {
+                    isCompiled = false;
+                }
+            }
+
+            // Run the compiled code
+            ProcessBuilder runProcessBuilder = new ProcessBuilder(executeCommand);
+            Process runProcess = runProcessBuilder.start();
+            runProcess.waitFor();
+
+            // Check if the run was successful
+            if (runProcess.exitValue() != 0) {
+                isRan = false;
+            }
+
+            // Get the output of the run
+            BufferedReader reader1 = new BufferedReader(new InputStreamReader(runProcess.getInputStream()));
+            StringBuilder output = new StringBuilder();
+            String line1;
+            while ((line1 = reader1.readLine()) != null) {
+                output.append(line1).append("\n");
+            }
+            student.setCompiled(isCompiled);
+            student.setIsRan(isRan);
+            student.setResult(output.toString());
+
+
+
+            return student;
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected void saveToCsv(FileWriter writer, String studentId, String result){
+        try  {
+            // Write CSV records
+            writer.append(studentId);
+            writer.append(",");
+            if ("Success".equals(result)) {
+                writer.append("Success");
+            } else {
+                writer.append("Failure");
+            }
+            writer.flush();
+
+        } catch (IOException e) {
+            System.err.println("Error with writing csv: " + e.getMessage());
+        }
+    }
+    protected String getJsonFilePath(String dirPath) throws IOException {
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(dirPath))) {
+            for (Path path : stream) {
+                if (path.toString().endsWith(".json")) {
+                    return path.toString();
+                }
+            }
+        }
+        return null;
+    }
+
+    public JSONObject getObject(String configFilePath,String objectName) throws IOException {
+
+        String jsonText = new String(Files.readAllBytes(Path.of(configFilePath)));
+        JSONObject json = new JSONObject(jsonText);
+        return json.getJSONObject(objectName);
+    }
+    private void showAlert(Alert.AlertType alertType, String title, String headerText, String contentText) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setHeaderText(headerText);
+        alert.setContentText(contentText);
+        alert.showAndWait();
     }
 
     @FXML
     protected void handleQuit() {
+        System.exit(0);
 
     }
     @FXML
@@ -125,8 +498,8 @@ public class MainController {
 
     }
 
-    protected void moveToDir(File file, String newDestDir) {  //Her System.err.println() yerine System.out.println()
-        if (file == null || !file.exists()) {                  //yerine GUI da göstermek için Alert kullanılabilir.
+    protected void moveToDir(File file, String newDestDir) {
+        if (file == null || !file.exists()) {
             System.err.println("The directory does not exist.");
             return;
         }

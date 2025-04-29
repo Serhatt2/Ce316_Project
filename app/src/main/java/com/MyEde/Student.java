@@ -7,6 +7,11 @@ public class Student {
     private boolean isCompiled;
     private boolean isRan;
 
+    public Student() {
+        this.studentID = studentID;
+        this.hasPassed = hasPassed;
+    }
+
     public String getStudentID() {
         return studentID;
     }
