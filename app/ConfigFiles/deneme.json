@@ -1,0 +1,11 @@
+{
+    "compilerConfig": {
+        "compileCommand": "gcc",
+        "language": "C",
+        "runCommand": ""
+    },
+    "projectConfig": {
+        "argument": ["asd"],
+        "expectedOutput": "asd+asd"
+    }
+}
