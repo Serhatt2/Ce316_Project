@@ -56,44 +56,46 @@ public class WindowController {
             radioCreateMode.setSelected(false);
             radioLoadMode.setSelected(true);
         }
-
     }
 
     @FXML
     protected void handleBrowseConfigFile(ActionEvent event) {
-        Object source = event.getSource();
-        File selectedFile = null;
-
-        if (source == btnBrowseConfig   || source == btnBrowseEditConfig   || source == btnDeleteConfig) {
-            selectedFile = selectJsonFile();
-        } else if (source == btnBrowseTarget  ) {
-            selectedFile = selectDirectory("/ProjectFiles");
-        } else if (source == btnBrowseZip  ) {
-            selectedFile = selectDirectory("");
-        } else if (source == btnPickDestDir  ) {
-            selectedFile = selectDirectory("/ConfigFiles");
+        if (event.getSource() == btnBrowseConfig) {
+            File file = selectJsonFile();
+            if (file != null) {
+                fieldConfigPath.setText(file.getAbsolutePath());
+            }
+            else System.out.println("File not found!");
+        } else if (event.getSource() == btnBrowseTarget) {
+            File file = selectDirectory("/ProjectFiles");
+            if (file != null) {
+                fieldProjectTarget.setText(file.getAbsolutePath());
+            }
+            else System.out.println("File not found!");
+        } else if (event.getSource() == btnBrowseZip) {
+            File file = selectDirectory("");
+            if (file != null) {
+                fieldZipInput.setText(file.getAbsolutePath());
+            }
+            else System.out.println("File not found!");
         }
-
-        if (selectedFile == null) {
-            System.out.println("File not found!");
-            return;
-        }
-
-        String path = selectedFile.getAbsolutePath();
-
-        if (source == btnBrowseConfig  ) {
-            fieldConfigPath  .setText(path);
-        } else if (source == btnBrowseEditConfig  ) {
-            fieldConfigPath  .setText(path);
-            loadConfigFromJson(selectedFile);
-        } else if (source == btnDeleteConfig) {
-            fieldDeletePath  .setText(path);
-        } else if (source == btnBrowseTarget  ) {
-            fieldProjectTarget  .setText(path);
-        } else if (source == btnBrowseZip  ) {
-            fieldZipInput  .setText(path);
-        } else if (source == btnPickDestDir  ) {
-            fieldProjectTarget.setText(path);
+        else if (event.getSource() == btnPickDestDir) {
+            File file = selectDirectory("/ConfigFiles");
+            if (file != null) {
+                fieldNewDestDir.setText(file.getAbsolutePath());
+            } else System.out.println("File not found!");
+        } else if (event.getSource() == btnBrowseEditConfig) {
+            File file = selectJsonFile();
+            if (file != null) {
+                fieldConfigPath.setText(file.getAbsolutePath());
+                loadConfigFromJson(file);
+            }
+            else System.out.println("File not found!");
+        } else if (event.getSource() == btnDeleteConfig) {
+            File file = selectJsonFile();
+            if (file != null) {
+                fieldDeletePath.setText(file.getAbsolutePath());
+            } else System.out.println("File not found!");
         }
     }
 
@@ -215,15 +217,27 @@ public class WindowController {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Choose Configuration File");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON Files", "*.json"));
-        fileChooser.setInitialDirectory(new File(Paths.get("").toAbsolutePath() + "/ConfigFiles"));
-        return fileChooser.showOpenDialog(new Popup());
+        File configFolder = new File(Paths.get("").toAbsolutePath() + "/ConfigFiles");
+        if (!configFolder.exists() || !configFolder.isDirectory()) {
+            configFolder = new File(System.getProperty("user.home"));
+        }
+        fileChooser.setInitialDirectory(configFolder);
+
+        return fileChooser.showOpenDialog(null);
     }
 
     private File selectDirectory(String folderName) {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Choose Directory");
-        directoryChooser.setInitialDirectory(new File(Paths.get("").toAbsolutePath() + folderName));
-        return directoryChooser.showDialog(new Popup());
+
+        File initialDir = new File(Paths.get("").toAbsolutePath() + folderName);
+        if (initialDir.exists() && initialDir.isDirectory()) {
+            directoryChooser.setInitialDirectory(initialDir);
+        } else {
+            directoryChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        }
+
+        return directoryChooser.showDialog(null);
     }
 
 

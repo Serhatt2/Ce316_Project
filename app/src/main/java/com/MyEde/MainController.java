@@ -11,6 +11,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -47,40 +48,36 @@ public class MainController {
 
 
     protected void extractZip(File zip) throws IOException {
-        String dir = zip.getParent()+File.separator+zip.getName().replaceAll("\\.zip$", "");
+        String destinationDir = zip.getParent() + File.separator + zip.getName().replaceAll("\\.zip$", "");
         byte[] buffer = new byte[1024];
-        ZipInputStream inputStream = new ZipInputStream(new FileInputStream(zip));
-        try {
-            ZipEntry entry = inputStream.getNextEntry();
-            while (entry != null) {
-                File output = new File(dir, entry.getName());
-                new File(output.getParent()).mkdirs();
-
-                FileOutputStream fos = null;
-                try {
-                    fos = new FileOutputStream(output);
-                    int length;
-                    while ((length = inputStream.read(buffer)) > 0) {
-                        fos.write(buffer, 0, length);
+        try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zip))) {
+            ZipEntry zipEntry = zis.getNextEntry();
+            while (zipEntry != null) {
+                File newFile = new File(destinationDir, zipEntry.getName());
+                if (zipEntry.isDirectory()) {
+                    if (!newFile.isDirectory() && !newFile.mkdirs()) {
+                        throw new IOException("Failed to create directory " + newFile);
                     }
-                } finally {
-                    if (fos != null) {
-                        try {
-                            fos.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                } else {
+                    File parent = newFile.getParentFile();
+                    if (!parent.exists() && !parent.mkdirs()) {
+                        throw new IOException("Failed to create directory " + parent);
+                    }
+                    try (FileOutputStream fos = new FileOutputStream(newFile)) {
+                        int len;
+                        while ((len = zis.read(buffer)) > 0) {
+                            fos.write(buffer, 0, len);
                         }
                     }
                 }
-                entry = inputStream.getNextEntry();
+                zipEntry = zis.getNextEntry();
             }
-            inputStream.closeEntry();
-        } finally {
-            inputStream.close();
+            zis.closeEntry();
         }
-        zip.delete();
+        boolean deleted = zip.delete();
         reloadTree();
     }
+
 
 
     @FXML
@@ -122,19 +119,33 @@ public class MainController {
 
     @FXML
     protected void handleOpenProject() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("createProject.fxml"));
-        Messenger messenger = Messenger.getInstance();
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        directoryChooser.setTitle("Choose Project Directory");
 
-        // Scene
-        setPopup(new Stage());
-        window.initOwner(getPrimaryStage());
-        window.initModality(Modality.APPLICATION_MODAL);
-        window.setTitle("New Project");
-        window.setResizable(false);
-        window.setScene(fxmlLoader.load());
-        messenger.setWindowController(fxmlLoader.getController());
-        window.showAndWait();
+        File initialDir = new File(Paths.get("").toAbsolutePath() + "/ProjectFiles");
+        if (initialDir.exists() && initialDir.isDirectory()) {
+            directoryChooser.setInitialDirectory(initialDir);
+        } else {
+            directoryChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        }
 
+        File selectedDirectory = directoryChooser.showDialog(null);
+        if (selectedDirectory == null) {
+            return;
+        }
+
+        InitDir = selectedDirectory.getAbsoluteFile();
+
+        resultsTableView.getColumns().clear();
+        resultsTableView.getItems().clear();
+
+        TreeItem<FileItem> root = new TreeItem<>(new FileItem(selectedDirectory.getAbsoluteFile()));
+        root.setExpanded(true);
+        projectTreeView.setRoot(root);
+
+        fillTreeView(root);
+
+        setupTreeView();
     }
 
     @FXML
@@ -190,6 +201,7 @@ public class MainController {
         messenger.setWindowController(fxmlLoader.getController());
         window.showAndWait();
     }
+
     @FXML
     protected void handleExportConfig() throws IOException {
         Desktop desk = Desktop.getDesktop();
@@ -235,10 +247,10 @@ public class MainController {
         resultsTableView.getColumns().clear();
 
         TableColumn<Student, String> studentIdCol = new TableColumn<>("Student ID");
-        studentIdCol.setCellValueFactory(new PropertyValueFactory<>("id"));
+        studentIdCol.setCellValueFactory(new PropertyValueFactory<>("studentID"));
 
         TableColumn<Student, Boolean> studentResultCol = new TableColumn<>("Result");
-        studentResultCol.setCellValueFactory(new PropertyValueFactory<>("result"));
+        studentResultCol.setCellValueFactory(new PropertyValueFactory<>("hasPassed"));
         studentResultCol.setCellFactory(col -> new TextFieldTableCell<>() {
             @Override
             public void updateItem(Boolean value, boolean empty) {
@@ -258,21 +270,24 @@ public class MainController {
             while ((record = reader.readLine()) != null) {
                 String[] fields = record.split(",");
                 if (fields.length > 1) {
-                    boolean isMatch = "Match".equals(fields[1]);
-                    resultsTableView.getItems().add(new Student());
+                    boolean isMatch = "Success".equals(fields[1]);
+                    resultsTableView.getItems().add(new Student(fields[0] , isMatch));
                 }
             }
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-
         reloadTree();
-
-
     }
 
     protected void checkOutputsOfStudents(String projectPath) throws IOException {
         String configOfProject = getJsonFilePath(projectPath);
+
+        if (configOfProject == null) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Missing Config File", "No .json file found in selected project directory. Make Sure you selected the right project directory");
+            return;
+        }
+
         JSONObject projectConfig = getObject(configOfProject, "projectConfig");
         String expOutput = projectConfig.getString("expectedOutput");
         String pathOfCSV = projectPath + "/StudentResults.csv";
@@ -280,18 +295,23 @@ public class MainController {
 
         try {
             ArrayList<Student> studentList = queryStudents(projectPath);
-            for (Student student: studentList) {
-                if (student.getResult().equals(expOutput)) //student.getOutput().trim().equals(expOutput.trim())
-                    student.setHasPassed(true);
-                else
-                    student.setHasPassed(false);
+            for (Student student : studentList) {
+                System.out.println(">> Student ID: " + student.getStudentID());
+                System.out.println(">> Output from run: [" + student.getOutput() + "]");
+                System.out.println(">> Expected Output: [" + expOutput + "]");
+                System.out.println(">> Output == Expected? : " + student.getOutput().equals(expOutput));
+                System.out.println(">> Output.trim == Expected.trim? : " + student.getOutput().trim().equals(expOutput.trim()));
+                System.out.println("-------------------------------------------------------------");
 
-                saveToCsv(writer, student.getStudentID(),student.getResult());
+                student.setHasPassed(student.getOutput().trim().equals(expOutput.trim()));
+                saveToCsv(writer, student.getStudentID(), student.getHasPassed());
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "Execution Failed", e.getMessage());
         }
     }
+
 
     protected ArrayList<Student> queryStudents(String filePath) throws Exception {
         File configFile = new File(getJsonFilePath(filePath));
@@ -485,7 +505,10 @@ public class MainController {
             }
             student.setCompiled(isCompiled);
             student.setIsRan(isRan);
-            student.setResult(output.toString());
+            student.setOutput(output.toString());
+
+            System.out.println("🔧 Final Output in runSCode: [" + output.toString() + "]");
+            System.out.println("🔧 Compiled: " + isCompiled + " | Ran: " + isRan);
 
 
 
@@ -495,16 +518,17 @@ public class MainController {
         }
     }
 
-    protected void saveToCsv(FileWriter writer, String studentId, String result){
+    protected void saveToCsv(FileWriter writer, String studentId, boolean hasPassed) {
         try  {
             // Write CSV records
             writer.append(studentId);
             writer.append(",");
-            if ("Success".equals(result)) {
+            if (hasPassed) {
                 writer.append("Success");
             } else {
                 writer.append("Failure");
             }
+            writer.append("\n");
             writer.flush();
 
         } catch (IOException e) {

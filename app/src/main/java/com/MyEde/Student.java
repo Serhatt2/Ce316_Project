@@ -2,14 +2,18 @@ package com.MyEde;
 
 public class Student {
     private String studentID;
-    private String result;
+    private String output;
     private boolean hasPassed;
     private boolean isCompiled;
     private boolean isRan;
 
-    public Student() {
+    public Student(String studentID , boolean hasPassed) {
         this.studentID = studentID;
         this.hasPassed = hasPassed;
+    }
+
+    public Student() {
+        // Default constructor
     }
 
     public String getStudentID() {
@@ -20,7 +24,7 @@ public class Student {
         this.studentID = studentID;
     }
 
-    public boolean hasPassed() {
+    public boolean getHasPassed() {
         return hasPassed;
     }
 
@@ -44,12 +48,12 @@ public class Student {
         this.isRan =isRan;
     }
 
-    public String getResult() {
-        return result;
+    public String getOutput() {
+        return output;
     }
 
-    public void setResult(String result) {
-        this.result = result;
+    public void setOutput(String output) {
+        this.output = output;
     }
 
 }
