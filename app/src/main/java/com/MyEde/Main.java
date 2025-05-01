@@ -14,6 +14,7 @@ import java.util.Objects;
 public class Main extends Application {
     @Override
     public void start(Stage stage) throws IOException {
+        createDefaultDirectories();
         Messenger messenger = Messenger.getInstance();
         MainController controller = new MainController();
 
@@ -30,6 +31,20 @@ public class Main extends Application {
 
 
     }
+
+    private void createDefaultDirectories() {
+        String userHome = System.getProperty("user.home");
+        File projectFiles = new File(userHome, "Documents/ProjectFiles");
+        File configFiles = new File(userHome, "Documents/ConfigFiles");
+
+        if (!projectFiles.exists()) {
+            projectFiles.mkdirs();
+        }
+        if (!configFiles.exists()) {
+            configFiles.mkdirs();
+        }
+    }
+
 
     public static void main(String[] args) {
         launch();

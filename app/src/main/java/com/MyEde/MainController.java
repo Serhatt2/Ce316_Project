@@ -121,12 +121,16 @@ public class MainController {
     protected void handleOpenProject() throws IOException {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Choose Project Directory");
-
-        File initialDir = new File(Paths.get("").toAbsolutePath() + "/ProjectFiles");
-        if (initialDir.exists() && initialDir.isDirectory()) {
-            directoryChooser.setInitialDirectory(initialDir);
+        File initialDir = new File(System.getProperty("user.home"), "Documents/ProjectFiles");
+        if (!initialDir.exists()) {
+            boolean created = initialDir.mkdirs();
+            if (!created) {
+                directoryChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+            } else {
+                directoryChooser.setInitialDirectory(initialDir);
+            }
         } else {
-            directoryChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+            directoryChooser.setInitialDirectory(initialDir);
         }
 
         File selectedDirectory = directoryChooser.showDialog(null);
@@ -135,18 +139,15 @@ public class MainController {
         }
 
         InitDir = selectedDirectory.getAbsoluteFile();
-
         resultsTableView.getColumns().clear();
         resultsTableView.getItems().clear();
-
         TreeItem<FileItem> root = new TreeItem<>(new FileItem(selectedDirectory.getAbsoluteFile()));
         root.setExpanded(true);
         projectTreeView.setRoot(root);
-
         fillTreeView(root);
-
         setupTreeView();
     }
+
 
     @FXML
     protected void handleCloseProject() throws IOException {
@@ -204,10 +205,17 @@ public class MainController {
 
     @FXML
     protected void handleExportConfig() throws IOException {
-        Desktop desk = Desktop.getDesktop();
-        desk.open(new File(Paths.get("").toAbsolutePath() + "/ConfigFiles"));
-
+        File configDir = new File(System.getProperty("user.home"), "Documents/ConfigFiles");
+        if (!configDir.exists()) {
+            boolean created = configDir.mkdirs();
+            if (!created) {
+                System.err.println("Could not create ConfigFiles directory.");
+                return;
+            }
+        }
+        Desktop.getDesktop().open(configDir);
     }
+
 
     @FXML
     protected void handleDeleteConfig() throws IOException {
@@ -776,7 +784,17 @@ public class MainController {
         }
 
         if (!useExistingConfig) {
-            moveToDir(buildConfigFile(configFileName,language,arguments,expectedOutput),targetDir+File.separator+name);
+            File configJson = buildConfigFile(configFileName, language, arguments, expectedOutput);
+            File configFilesDir = new File(System.getProperty("user.home"), "Documents/ConfigFiles");
+            if (!configFilesDir.exists()) configFilesDir.mkdirs();
+            File copyTarget = new File(configFilesDir, configJson.getName());
+            try {
+                Files.copy(configJson.toPath(), copyTarget.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e) {
+                System.err.println("Couldn't copy config to ConfigFiles: " + e.getMessage());
+            }
+            moveToDir(configJson, targetDir + File.separator + name);
+
         } else {
             File configFile = new File(existingConfigPath);
             Path srcPath = Path.of(existingConfigPath);

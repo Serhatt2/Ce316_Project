@@ -213,32 +213,37 @@ public class WindowController {
         areaExpectedOutput  .setText(expectedOut);
 
     }
+
     private File selectJsonFile() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Choose Configuration File");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON Files", "*.json"));
-        File configFolder = new File(Paths.get("").toAbsolutePath() + "/ConfigFiles");
-        if (!configFolder.exists() || !configFolder.isDirectory()) {
-            configFolder = new File(System.getProperty("user.home"));
+
+        File configFolder = new File(System.getProperty("user.home"), "Documents/ConfigFiles");
+        if (configFolder.exists()) {
+            fileChooser.setInitialDirectory(configFolder);
+        } else {
+            fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
         }
-        fileChooser.setInitialDirectory(configFolder);
 
         return fileChooser.showOpenDialog(null);
     }
+
 
     private File selectDirectory(String folderName) {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Choose Directory");
 
-        File initialDir = new File(Paths.get("").toAbsolutePath() + folderName);
-        if (initialDir.exists() && initialDir.isDirectory()) {
-            directoryChooser.setInitialDirectory(initialDir);
+        File baseDir = new File(System.getProperty("user.home"), "Documents" + folderName);
+        if (baseDir.exists()) {
+            directoryChooser.setInitialDirectory(baseDir);
         } else {
             directoryChooser.setInitialDirectory(new File(System.getProperty("user.home")));
         }
 
         return directoryChooser.showDialog(null);
     }
+
 
 
 }
