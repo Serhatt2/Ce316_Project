@@ -24,7 +24,7 @@ public class Main extends Application {
         Scene scene = new Scene(fxmlLoader.load(), 1200, 750);
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com/MyEde/style.css")).toExternalForm());
         messenger.setMainController(fxmlLoader.getController());
-        stage.setTitle("EDE App");
+        stage.setTitle("IAE App");
 
         stage.setScene(scene);
         stage.show();

@@ -312,7 +312,7 @@ public class MainController {
                 System.out.println("-------------------------------------------------------------");
 
                 student.setHasPassed(student.getOutput().trim().equals(expOutput.trim()));
-                saveToCsv(writer, student.getStudentID(), student.getHasPassed());
+                saveToCsv(writer, student.getStudentID(), student.getHasPassed() , student.getOutput());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -526,7 +526,7 @@ public class MainController {
         }
     }
 
-    protected void saveToCsv(FileWriter writer, String studentId, boolean hasPassed) {
+    protected void saveToCsv(FileWriter writer, String studentId, boolean hasPassed , String studentOutput) {
         try  {
             // Write CSV records
             writer.append(studentId);
@@ -536,6 +536,8 @@ public class MainController {
             } else {
                 writer.append("Failure");
             }
+            //writer.append(",");
+            //writer.append(studentOutput);
             writer.append("\n");
             writer.flush();
 
