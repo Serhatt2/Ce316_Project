@@ -1,4 +1,4 @@
-package com.MyEde;
+package com.MyIAE;
 
 // Singleton class to manage communication between different controllers
 public class Messenger {

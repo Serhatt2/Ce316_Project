@@ -8,7 +8,7 @@
 <?import java.lang.String?>
 <?import javafx.scene.Scene?>
 
-<Scene xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.MyEde.WindowController">
+<Scene xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.MyIAE.WindowController">
     <AnchorPane>
         <VBox prefWidth="600.0" prefHeight="450.0" spacing="10">
             <padding>

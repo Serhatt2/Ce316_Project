@@ -15,7 +15,7 @@ dependencies {
 
 application {
     // Ana sınıf buraya:
-    mainClass.set("com.MyEde.Main")
+    mainClass.set("com.MyIAE.Main")
 }
 
 javafx {

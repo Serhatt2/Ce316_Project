@@ -1,11 +1,10 @@
-package com.MyEde;
+package com.MyIAE;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
-import javafx.stage.Popup;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

@@ -1,4 +1,4 @@
-package com.MyEde;
+package com.MyIAE;
 
 public class Student {
     private String studentID;
@@ -10,6 +10,12 @@ public class Student {
     public Student(String studentID , boolean hasPassed) {
         this.studentID = studentID;
         this.hasPassed = hasPassed;
+    }
+
+    public Student(String studentID , boolean hasPassed , String output) {
+        this.studentID = studentID;
+        this.hasPassed = hasPassed;
+        this.output = output;
     }
 
     public Student() {

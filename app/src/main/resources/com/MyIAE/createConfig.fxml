@@ -9,7 +9,7 @@
 <?import javafx.collections.FXCollections?>
 <?import java.lang.String?>
 
-<Scene xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.MyEde.WindowController">
+<Scene xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.MyIAE.WindowController">
     <VBox prefWidth="600.0" prefHeight="520.0" spacing="10">
         <padding>
             <Insets top="15.0" right="20.0" bottom="5.0" left="20.0"/>

@@ -1,9 +1,10 @@
-package com.MyEde;
+package com.MyIAE;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
@@ -14,7 +15,7 @@ import javafx.scene.input.MouseButton;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-
+import java.util.List;
 import java.awt.*;
 import java.io.*;
 import java.nio.file.*;
@@ -45,6 +46,7 @@ public class MainController {
     protected ArrayList<String> fileContent = new ArrayList<>();
     private ContextMenu treeViewContextMenu;
 
+    private List<Student> lastCheckedStudents;
 
 
     protected void extractZip(File zip) throws IOException {
@@ -271,7 +273,43 @@ public class MainController {
             }
         });
 
-        resultsTableView.getColumns().addAll(studentIdCol, studentResultCol);
+        TableColumn<Student, Void> actionCol = new TableColumn<>("");
+
+        actionCol.setCellFactory(param -> new TableCell<>() {
+            private final Button button = new Button(" ");
+
+            {
+                button.setOnAction(event -> {
+                    Student student = getTableView().getItems().get(getIndex());
+                    String output = student.getOutput();
+
+                    TextArea textArea = new TextArea(output);
+                    textArea.setWrapText(true);
+                    textArea.setEditable(false);
+
+                    ScrollPane scrollPane = new ScrollPane(textArea);
+                    scrollPane.setFitToWidth(true);
+                    scrollPane.setFitToHeight(true);
+
+                    Stage outputStage = new Stage();
+                    outputStage.setTitle("Student Output __ " + student.getStudentID());
+                    outputStage.setScene(new Scene(scrollPane, 750, 600));
+                    outputStage.show();
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                setGraphic(empty ? null : button);
+            }
+        });
+
+
+
+
+
+        resultsTableView.getColumns().addAll(studentIdCol, studentResultCol, actionCol);
 
         try (BufferedReader reader = new BufferedReader(new FileReader(resultsCsv))) {
             String record;
@@ -279,7 +317,17 @@ public class MainController {
                 String[] fields = record.split(",");
                 if (fields.length > 1) {
                     boolean isMatch = "Success".equals(fields[1]);
-                    resultsTableView.getItems().add(new Student(fields[0] , isMatch));
+
+                    String output = "";
+                    if (lastCheckedStudents != null) {
+                        for (Student stu : lastCheckedStudents) {
+                            if (stu.getStudentID().equals(fields[0])) {
+                                output = stu.getOutput();
+                                break;
+                            }
+                        }
+                    }
+                    resultsTableView.getItems().add(new Student(fields[0], isMatch, output));
                 }
             }
         } catch (IOException ex) {
@@ -312,7 +360,8 @@ public class MainController {
                 System.out.println("-------------------------------------------------------------");
 
                 student.setHasPassed(student.getOutput().trim().equals(expOutput.trim()));
-                saveToCsv(writer, student.getStudentID(), student.getHasPassed() , student.getOutput());
+                saveToCsv(writer, student.getStudentID(), student.getHasPassed());
+                this.lastCheckedStudents = studentList;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -515,8 +564,8 @@ public class MainController {
             student.setIsRan(isRan);
             student.setOutput(output.toString());
 
-            System.out.println("🔧 Final Output in runSCode: [" + output.toString() + "]");
-            System.out.println("🔧 Compiled: " + isCompiled + " | Ran: " + isRan);
+            System.out.println("Final Output in runSCode: [" + output.toString() + "]");
+            System.out.println("Compiled: " + isCompiled + " | Ran: " + isRan);
 
 
 
@@ -526,7 +575,7 @@ public class MainController {
         }
     }
 
-    protected void saveToCsv(FileWriter writer, String studentId, boolean hasPassed , String studentOutput) {
+    protected void saveToCsv(FileWriter writer, String studentId, boolean hasPassed) {
         try  {
             // Write CSV records
             writer.append(studentId);
@@ -575,13 +624,7 @@ public class MainController {
         System.exit(0);
 
     }
-    @FXML
-    protected void handleAbout() {
-        String contentText = "n" +
-                "n";
-        showAlert(Alert.AlertType.INFORMATION, "About", "Software Development Team", contentText);
 
-    }
 
     @FXML
     protected void handleUserManual() {
