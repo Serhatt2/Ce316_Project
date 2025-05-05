@@ -16,14 +16,17 @@ ________________________________________________________________________________
   To open project:
 - File -> Open Project -> Choose the porject folder (Browse button will automaticaly directs you to the ProjectFiles directory.
 **WARNING** For better usage please select the corresponding folder as shown below
-ProjectC/  ----------------> Select this file
-├── 20220602017.ZIP
-│   ├── main.c
-│   └── main.class
-├── 20220602061.ZIP
-│   ├── main1.c
-│   └── main1.class
-└── configC.json
+```text
+ProjectFiles/
+└── ProjectC/ ← ✅ Select this folder!
+    ├── 20220602017.ZIP
+    │   ├── main.c
+    │   └── main.class
+    ├── 20220602061.ZIP
+    │   ├── main1.c
+    │   └── main1.class
+    └── configC.json
+```
 __________________________________________________________________________________________________________________________________________________
   Config File Actions:
 - Create Config -> Fill the blanks than choose the directory to save(automaticaly directs you to the ConfigFiles directory)
