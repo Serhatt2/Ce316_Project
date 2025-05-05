@@ -1,21 +1,41 @@
-# Ce316_Project
-## Must Read Before Use
-  The application creates two files in the "{user.home}\documents" directory as "ConfigFiles" and "ProjectFiles"
-  Whenever you create a project or a config.json it automaticaly directs user to corresponding file.
+# 💻 Ce316_Project
 
-  To create new project:
-- File -> New Project -> Fill the blanks
-- Use Existing Config -> Choose an config.json file(automaticaly directs you to the ConfigFiles directory=
-- Create Config -> Fill the blanks than choose the directory to save(automaticaly directs you to the ConfigFiles directory)
-- Choose the porject folder to save -> automaticaly directs you to the ProjectFile directory.
-- Select Directory With ZIP -> **WARNING** Since application copies the zip files into the project folder then deletes the originals we reccomend users to select a file which contains only the ZIP files.
-  
-*For ex: If you would choose the "Desktop" directory as "ZIP files directory" it will copy all the files and shortcuts into the project file then deletes the content of the desktop*  
+## 📌 Must Read Before Use
 
-__________________________________________________________________________________________________________________________________________________
-  To open project:
-- File -> Open Project -> Choose the porject folder (Browse button will automaticaly directs you to the ProjectFiles directory.
-**WARNING** For better usage please select the corresponding folder as shown below
+The application creates two folders in the `{user.home}\Documents` directory:
+
+- 🗂️ **ConfigFiles**
+- 🗂️ **ProjectFiles**
+
+Whenever you create a project or a config.json file, the app will **automatically** direct the user to the appropriate folder.
+
+---
+
+### 🚀 To Create a New Project:
+
+- `File → New Project → Fill the blanks`
+- `Use Existing Config` → Choose a `config.json` file  
+  *(automatically opens the **ConfigFiles** directory)*
+- `Create Config` → Fill the blanks, then choose the save directory  
+  *(automatically opens the **ConfigFiles** directory)*
+- `Choose Project Folder to Save` →  
+  *(automatically opens the **ProjectFiles** directory)*
+
+- `Select Directory With ZIP` →  
+  ❗ **⚠️ WARNING:** The application **copies** the selected ZIP files into the project folder and **deletes** the originals.  
+  👉 We strongly recommend selecting a folder that contains **only the ZIP files**.
+
+🟥 *For example: If you select your **Desktop** as the ZIP source, all files and shortcuts on your desktop will be copied into the project folder and then deleted!*
+
+---
+
+### 📂 To Open a Project:
+
+- `File → Open Project → Choose the project folder`  
+  *(Browse button will automatically open the **ProjectFiles** directory)*
+
+❗ **⚠️ WARNING:** For best results, select the correct subfolder as shown below:
+
 ```text
 ProjectFiles/
 └── ProjectC/ ← ✅ Select this folder!
@@ -27,10 +47,23 @@ ProjectFiles/
     │   └── main1.class
     └── configC.json
 ```
-__________________________________________________________________________________________________________________________________________________
-  Config File Actions:
-- Create Config -> Fill the blanks than choose the directory to save(automaticaly directs you to the ConfigFiles directory)
-- Edit Config -> Browse Button will automaticaly directs you to the ConfigFiles directory. Choose a config_.json file to edit.
-- Delete Config -> Browse Button will automaticaly directs you to the ConfigFiles directory. Choose a config_.json file to delete.
-- Export Config -> Application will automaticaly open the ConfigFiles directory. **Since export button opens the ConfigFiles directory, creating new configs out of the ConfigFiles directory will bypass the efficiency of the Export Button**
-__________________________________________________________________________________________________________________________________________________
+
+---
+
+### ⚙️ Config File Actions:
+
+- `Create Config` → Fill in the blanks and choose a save location  
+  *(automatically opens the **ConfigFiles** directory)*
+
+- `Edit Config` → The **Browse** button will automatically open **ConfigFiles**  
+  👉 Select a `config_*.json` file to edit
+
+- `Delete Config` → The **Browse** button will automatically open **ConfigFiles**  
+  🗑️ Select a `config_*.json` file to delete
+
+- `Export Config` → The application opens **ConfigFiles** by default  
+  📤 Select the config file you want to export
+
+❗ **⚠️ WARNING:**  
+Creating config files **outside** the `ConfigFiles` directory will **break** the export feature.  
+➡️ To ensure proper operation, always **save configs within the ConfigFiles folder**.
