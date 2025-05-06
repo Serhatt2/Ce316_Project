@@ -483,9 +483,7 @@ public class MainController {
         System.out.println("CPP Compile: " + String.join(" ", compileCmd));
         System.out.println("CPP Run: " + String.join(" ", executeCmd));
 
-        return runSCode(
-                compileCmd.toArray(new String[0]),
-                executeCmd.toArray(new String[0])
+        return runSCode(compileCmd.toArray(new String[0]), executeCmd.toArray(new String[0])
         );
     }
 
@@ -717,9 +715,9 @@ public class MainController {
 
     @FXML
     protected void handleUserManual() {
-        String filePath = "UserManual.txt";
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(getClass().getResourceAsStream("/com/MyIAE/UserManual.txt"), "UTF-8"))) {
 
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), "UTF-8"))) {
             String line;
             StringBuilder content = new StringBuilder();
             while ((line = br.readLine()) != null) {
@@ -727,16 +725,15 @@ public class MainController {
             }
             showPopupWithContent(content.toString());
 
-        } catch (IOException e) {
+        } catch (IOException | NullPointerException e) {
             e.printStackTrace();
         }
-
     }
+
 
     public void showPopupWithContent(String content) throws FileNotFoundException {
         Stage popupStage = new Stage();
         popupStage.setTitle("User Manual");
-        popupStage.getIcons().add(new Image(new FileInputStream("img.png")));
 
         TextArea textArea = new TextArea(content);
         textArea.setWrapText(true);
