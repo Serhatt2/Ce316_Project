@@ -35,6 +35,13 @@ dependencies {
 
 jlink {
     imageZip.set(file("$buildDir/image.zip"))
+
+    mergedModule {
+        additive = true
+        requires("jdk.compiler")
+        requires("java.desktop")
+    }
+
     launcher {
         name = "IAE_Launcher"
     }

@@ -241,6 +241,7 @@ public class MainController {
 
     @FXML
     protected void handleCheck() throws IOException {
+
         if (projectTreeView == null) {
             return;
         }
@@ -541,6 +542,7 @@ public class MainController {
 
                 // Check if the compilation was successful
                 if (compileProcess.exitValue() != 0) {
+                    System.out.println("Exit Value != 0");
                     isCompiled = false;
                 }
             }
@@ -562,6 +564,15 @@ public class MainController {
             while ((line1 = reader1.readLine()) != null) {
                 output.append(line1).append("\n");
             }
+            //---------------------------------------------------------------------deneme
+            BufferedReader errorReader = new BufferedReader(new InputStreamReader(runProcess.getErrorStream()));
+            StringBuilder errors = new StringBuilder();
+            String line2;
+            while ((line2 = errorReader.readLine()) != null) {
+                errors.append(line2).append("\n");
+            }
+            System.err.println("Run STDERR: [" + errors.toString() + "]");
+            //---------------------------------------------------------------------
             student.setCompiled(isCompiled);
             student.setIsRan(isRan);
             student.setOutput(output.toString());
