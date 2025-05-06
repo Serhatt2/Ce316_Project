@@ -378,42 +378,78 @@ public class MainController {
         String configFilePath = configFile.getAbsolutePath();
         ArrayList<Student> students = new ArrayList<>();
 
-        File directory =new File(filePath);
-        File[] files = directory.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    File[] sourceFiles = file.listFiles();
+        File directory = new File(filePath);
+        File[] studentDirs = directory.listFiles();
 
-                    assert sourceFiles != null;
-                    for(File sourceFile: sourceFiles){
-                        if (sourceFile.getName().endsWith(".java")){
-                            Student student = runJava(configFilePath,sourceFile.getAbsolutePath());
-                            student.setStudentID(file.getName());
-                            students.add(student);
-                        }else if (sourceFile.getName().endsWith(".c")){
-                            Student student = cRun(configFilePath,sourceFile.getAbsolutePath());
-                            student.setStudentID(file.getName());
-                            students.add(student);
-                        }else if (sourceFile.getName().endsWith(".py")){
-                            Student student = pythonRun(configFilePath,sourceFile.getAbsolutePath());
-                            student.setStudentID(file.getName());
-                            students.add(student);
-                        } else if (sourceFile.getName().endsWith(".cpp")) {
-                            Student student = cppRun(configFilePath,sourceFile.getAbsolutePath());
-                            student.setStudentID(file.getName());
-                            students.add(student);
-                        }
-                    }
+        if (studentDirs == null) return students;
+
+        for (File studentDir : studentDirs) {
+            if (!studentDir.isDirectory()) continue;
+
+            File[] sourceFiles = studentDir.listFiles();
+            if (sourceFiles == null) continue;
+
+            boolean added = false;
+
+            for (File sourceFile : sourceFiles) {
+                String path = sourceFile.getAbsolutePath();
+                if (!isSupportedFile(path)) continue;
+
+                boolean isMain = hasMainMethod(sourceFile);
+
+                Student student = null;
+
+                if (path.endsWith(".java")) {
+                    student = runJava(configFilePath, path); // compile + run
+                } else if (path.endsWith(".c")) {
+                    student = cRun(configFilePath, path);
+                } else if (path.endsWith(".cpp")) {
+                    student = cppRun(configFilePath, path);
+                } else if (path.endsWith(".py")) {
+                    if (!isMain) continue;
+                    student = pythonRun(configFilePath, path);
+                }
+
+                // Sadece main içeriyorsa sonucu kaydet
+                if (student != null && isMain && !added) {
+                    student.setStudentID(studentDir.getName());
+                    students.add(student);
+                    added = true;
                 }
             }
         }
+
         return students;
     }
 
-    public Student cppRun(String configFilePath, String sourceFile){
-        File cppFile = new File(sourceFile);
-        String fileName = cppFile.getName();
+    private boolean hasMainMethod(File file) throws IOException {
+        String name = file.getName().toLowerCase();
+        String content = new String(Files.readAllBytes(file.toPath()));
+
+        if (name.endsWith(".java")) {
+            return content.contains("public static void main");
+        } else if (name.endsWith(".py")) {
+            return content.contains("if __name__ == \"__main__\"") || content.contains("if __name__ == '__main__'");
+        } else if (name.endsWith(".c") || name.endsWith(".cpp")) {
+            return content.contains("int main") || content.contains("void main");
+        }
+        return false;
+    }
+
+    private boolean isSupportedFile(String path) {
+        return path.endsWith(".java") || path.endsWith(".c") || path.endsWith(".cpp") || path.endsWith(".py");
+    }
+
+
+
+    public Student cppRun(String configFilePath, String mainSourceFile) {
+        File mainFile = new File(mainSourceFile);
+        File dir = mainFile.getParentFile();
+
+        String execName = mainFile.getName().replace(".cpp", "");
+
+        String execPath = new File(dir, execName + ".exe").getAbsolutePath();
+
         JSONObject compilerConfig;
         JSONObject projectConfig;
 
@@ -424,28 +460,38 @@ public class MainController {
             throw new RuntimeException(e);
         }
 
-        // Extract the base name (without path) and remove .cpp extension
-        String executableName = fileName.substring(0, fileName.length() - 4);
+        String compiler = compilerConfig.getString("compileCommand");
 
-        String[] compileCommand = {
-                compilerConfig.getString("compileCommand"),
-                sourceFile,
-                "-o",
-                cppFile.getParent() + "\\" + executableName
-        };
+        File[] allCppFiles = dir.listFiles((d, name) -> name.endsWith(".cpp"));
+        List<String> compileCmd = new ArrayList<>();
+        compileCmd.add(compiler);
+        if (allCppFiles != null) {
+            for (File f : allCppFiles) {
+                compileCmd.add(f.getAbsolutePath());
+            }
+        }
+        compileCmd.add("-o");
+        compileCmd.add(execPath);
 
         JSONArray arguments = projectConfig.getJSONArray("argument");
-        String[] executeCommand = new String[arguments.length() + 1];
-        executeCommand[0] = cppFile.getParent() + "\\" + executableName;
+        List<String> executeCmd = new ArrayList<>();
+        executeCmd.add(execPath);
         for (int i = 0; i < arguments.length(); i++) {
-            executeCommand[i + 1] = arguments.getString(i);
+            executeCmd.add(arguments.getString(i));
         }
 
-        return runSCode(compileCommand,executeCommand);
+        System.out.println("CPP Compile: " + String.join(" ", compileCmd));
+        System.out.println("CPP Run: " + String.join(" ", executeCmd));
+
+        return runSCode(
+                compileCmd.toArray(new String[0]),
+                executeCmd.toArray(new String[0])
+        );
     }
 
+
     public Student pythonRun(String configFilePath, String sourceFile){
-        //python -m py_compile
+
         JSONObject compilerConfig = null;
         JSONObject projectConfig = null;
         try {
@@ -457,7 +503,8 @@ public class MainController {
 
         JSONArray arguments = projectConfig.getJSONArray("argument");
 
-        String[] compileCommand = {compilerConfig.getString("compileCommand")};
+        String compileStr = compilerConfig.getString("compileCommand");
+        String[] compileCommand = compileStr.isEmpty() ? new String[]{} : new String[]{compileStr};
         String[] executeCommand = new String[arguments.length()+2];
         executeCommand[0] = compilerConfig.getString("runCommand");
         executeCommand[1] = sourceFile;
@@ -471,62 +518,91 @@ public class MainController {
     }
 
 
-    public Student cRun(String configFilePath, String sourceFile){
-        File cFile = new File(sourceFile);
-        String fileName = cFile.getName();
-        JSONObject compilerConfig = null;
-        JSONObject projectConfig = null;
+    public Student cRun(String configFilePath, String mainSourceFile) {
+        File mainFile = new File(mainSourceFile);
+        File dir = mainFile.getParentFile();
+        String execName = mainFile.getName().replace(".c", "");
+
+        String execPath = new File(dir, execName +  ".exe").getAbsolutePath();
+
+        JSONObject compilerConfig;
+        JSONObject projectConfig;
+
         try {
-            compilerConfig = getObject(configFilePath,"compilerConfig");
-            projectConfig = getObject(configFilePath,"projectConfig");
+            compilerConfig = getObject(configFilePath, "compilerConfig");
+            projectConfig = getObject(configFilePath, "projectConfig");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
+        String compiler = compilerConfig.getString("compileCommand");
 
-        String substring = fileName.substring(0, fileName.length() - 2);
-        String[] compileCommand = {compilerConfig.getString("compileCommand"),sourceFile,"-o", cFile.getParent() + "\\" + substring};
+
+        File[] allCFiles = dir.listFiles((d, name) -> name.endsWith(".c"));
+        List<String> compileCmd = new ArrayList<>();
+        compileCmd.add(compiler);
+        if (allCFiles != null) {
+            for (File f : allCFiles) {
+                compileCmd.add(f.getAbsolutePath());
+            }
+        }
+        compileCmd.add("-o");
+        compileCmd.add(execPath);
+
         JSONArray arguments = projectConfig.getJSONArray("argument");
-        String[] executeCommand = new String[arguments.length()+1];
-        executeCommand[0] = cFile.getParent() + "\\" + substring;
+        List<String> executeCmd = new ArrayList<>();
+        executeCmd.add(execPath);
         for (int i = 0; i < arguments.length(); i++) {
-            executeCommand[i+1] = arguments.getString(i);
+            executeCmd.add(arguments.getString(i));
         }
 
-        return runSCode(compileCommand,executeCommand);
+        System.out.println("Compile CMD: " + String.join(" ", compileCmd));
+        System.out.println("Execute CMD: " + String.join(" ", executeCmd));
 
+        return runSCode(compileCmd.toArray(new String[0]), executeCmd.toArray(new String[0]));
     }
 
-    public Student runJava(String configFilePath, String sourceFile){
 
-        JSONObject compilerConfig = null;
-        JSONObject projectConfig = null;
+    public Student runJava(String configFilePath, String sourceFile) {
+        JSONObject compilerConfig;
+        JSONObject projectConfig;
 
         try {
-            compilerConfig = getObject(configFilePath,"compilerConfig");
-            projectConfig = getObject(configFilePath,"projectConfig");
+            compilerConfig = getObject(configFilePath, "compilerConfig");
+            projectConfig = getObject(configFilePath, "projectConfig");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
         String jCompile = compilerConfig.getString("compileCommand");
-        String runCommand = compilerConfig.getString("runCommand");
+        String jRun = compilerConfig.getString("runCommand");
 
-        String[] compileCommand = {jCompile,sourceFile};
+        File source = new File(sourceFile);
+        File dir = source.getParentFile();
 
-
-        JSONArray arguments = projectConfig.getJSONArray("argument");
-
-        String[] executeCommand = new String[arguments.length()+2];
-        executeCommand[0] = runCommand;
-        executeCommand[1] = sourceFile;
-        for (int i = 0; i < arguments.length(); i++) {
-            executeCommand[i+2] = arguments.getString(i);
+        File[] allJavaFiles = dir.listFiles((d, name) -> name.endsWith(".java"));
+        List<String> compileCmd = new ArrayList<>();
+        compileCmd.add(jCompile);
+        for (File f : allJavaFiles) {
+            compileCmd.add(f.getAbsolutePath());
         }
 
-        return runSCode(compileCommand,executeCommand);
+        String className = source.getName().replace(".java", "");
 
+        List<String> executeCmd = new ArrayList<>();
+        executeCmd.add(jRun);
+        executeCmd.add("-cp");
+        executeCmd.add(dir.getAbsolutePath());
+        executeCmd.add(className);
 
+        JSONArray arguments = projectConfig.getJSONArray("argument");
+        for (int i = 0; i < arguments.length(); i++) {
+            executeCmd.add(arguments.getString(i));
+        }
+
+        return runSCode(compileCmd.toArray(new String[0]), executeCmd.toArray(new String[0]));
     }
+
 
     public Student runSCode(String[] compilerCommand, String[] executeCommand) {
 
