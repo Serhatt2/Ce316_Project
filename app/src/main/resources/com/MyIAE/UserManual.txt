@@ -1,1 +1,120 @@
-asdasdasd
+============================
+ Integrated Assignment Environment (IAE)
+============================
+
+How to Use the Application
+----------------------------
+
+[1] FILE MENU FUNCTIONS
+----------------------------
+
+[1.1] New Project:
+    > Access: File Menu > New Project
+
+    Steps:
+    [1] Click "New Project"
+    [2] Enter your project name
+    [3] Choose to create or import a configuration:
+        - [NEW CONFIG]: Click "New", fill in the details, select location
+        - [IMPORT CONFIG]: Click "Import", select the config file, choose save location
+    [4] Select the folder containing ZIP files of student submissions
+
+        [!] WARNING: The application copies ZIP files into the project folder
+            and deletes the originals.
+
+        [>] Recommended: Select a folder containing only ZIP files
+
+    [5] Click "Create" to generate the project
+
+
+[1.2] Open Project:
+    > Access: File Menu > Open Project
+
+    Steps:
+    [1] Click "Open Project"
+    [2] Select the folder containing your project
+
+    [!] WARNING: Be sure to select the correct subfolder
+
+    Example:
+    ProjectFiles/
+    └── ProjectC/   <-- SELECT THIS FOLDER!
+        ├── 20220602017.ZIP
+        │   ├── main.c
+        │   └── main.class
+        ├── 20220602061.ZIP
+        │   ├── main1.c
+        │   └── main1.class
+        └── configC.json
+
+
+[1.3] Close Project:
+    > Access: File Menu > Close Project
+
+    Steps:
+    [1] Click "Close Project" to unload the current project
+
+
+
+[2] CONFIGURATION FILE ACTIONS
+----------------------------
+
+[2.1] Create Configuration:
+    > Access: File Menu > Create Config
+
+    Steps:
+    [1] Click "Create Config"
+    [2] Enter file name, language, arguments, expected output
+    [3] Select save location (opens ConfigFiles folder)
+    [4] Click "Create" to generate config file
+
+[2.2] Edit Configuration:
+    > Access: File Menu > Edit Config
+
+    Steps:
+    [1] Click "Edit Config"
+    [2] Select a configuration to modify (opens ConfigFiles)
+    [3] Edit and click "Save"
+
+[2.3] Export Configuration:
+    > Access: File Menu > Export Config
+
+    Steps:
+    [1] Click "Export Config"
+    [2] Select a configuration file to export
+
+    [!] WARNING: Saving configs outside of ConfigFiles may break export
+    [>] Always save inside ConfigFiles folder
+
+[2.4] Delete Configuration:
+    > Access: File Menu > Delete Config
+
+    Steps:
+    [1] Click "Delete Config"
+    [2] Select config file and confirm (opens ConfigFiles folder)
+
+
+[3] Quit Application
+----------------------------
+    > Access: File Menu > Quit
+
+    Steps:
+    [1] Click "Quit" to exit the application
+
+
+[4] MAIN SCREEN OPERATIONS
+----------------------------
+
+[4.1] File Management:
+    - Files are shown in a tree on the left
+    - Double-click to view files in the center
+    - Right-click config files to Edit or Delete
+    - Right-click project folder to unzip all or individual files
+
+[4.2] Checking Student Outputs:
+    - After unzipping, click "Check" (bottom-right)
+    - "pass" = output matches expected
+    - "fail" = output does not match
+    - Output of each student is shown next to result
+    - A results CSV file is saved in the project folder
+    - To refresh with new submissions: reopen project and click "Check"
