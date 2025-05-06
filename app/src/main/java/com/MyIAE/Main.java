@@ -12,6 +12,7 @@ import java.util.Objects;
 public class Main extends Application {
     @Override
     public void start(Stage stage) throws IOException {
+
         createDefaultDirectories();
         Messenger messenger = Messenger.getInstance();
         MainController controller = new MainController();

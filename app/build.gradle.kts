@@ -1,6 +1,28 @@
 plugins {
-    id("buildlogic.java-application-conventions")
-    id("org.openjfx.javafxplugin") version "0.1.0"
+    java
+    application
+    id("org.openjfx.javafxplugin") version "0.0.13"
+    id("org.beryx.jlink") version "2.25.0"
+}
+javafx {
+    version = "17.0.6" // veya 23.0.2'yi deniyorsan o da olur
+    modules = listOf("javafx.controls", "javafx.fxml")
+}
+
+
+group = "com.MyIAE"
+version = "1.0"
+
+application {
+    mainModule.set("com.MyIAE") // <--- eklenmesi gereken yer
+    mainClass.set("com.MyIAE.Main")
+}
+
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
 }
 
 repositories {
@@ -8,24 +30,12 @@ repositories {
 }
 
 dependencies {
-    implementation("org.apache.commons:commons-text")
-    implementation(project(":utilities"))
     implementation("org.json:json:20230227")
 }
 
-application {
-    // Ana sınıf buraya:
-    mainClass.set("com.MyIAE.Main")
-}
-
-javafx {
-    version = "23.0.2"
-    modules = listOf("javafx.controls", "javafx.fxml")
-}
-
-tasks.named<JavaExec>("run") {
-    jvmArgs = listOf(
-        "--module-path", "/Users/serhataydin/Desktop/javafx-sdk-23.0.2/lib",
-        "--add-modules", "javafx.controls,javafx.fxml"
-    )
+jlink {
+    imageZip.set(file("$buildDir/image.zip"))
+    launcher {
+        name = "IAE_Launcher"
+    }
 }

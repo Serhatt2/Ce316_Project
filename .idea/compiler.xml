@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <bytecodeTargetLevel target="21">
+    <bytecodeTargetLevel target="17">
       <module name="build-logic.Ce316_Project" target="23" />
       <module name="build-logic.Ce316_Project.main" target="23" />
       <module name="build-logic.Ce316_Project.test" target="23" />
+      <module name="Ce316_Project.list" target="21" />
+      <module name="Ce316_Project.list.main" target="21" />
+      <module name="Ce316_Project.list.test" target="21" />
+      <module name="Ce316_Project.utilities" target="21" />
+      <module name="Ce316_Project.utilities.main" target="21" />
+      <module name="Ce316_Project.utilities.test" target="21" />
     </bytecodeTargetLevel>
   </component>
 </project>
