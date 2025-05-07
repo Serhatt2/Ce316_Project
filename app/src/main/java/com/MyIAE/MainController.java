@@ -607,6 +607,8 @@ public class MainController {
         Student student = new Student();
         boolean isCompiled = true;
         boolean isRan = true;
+
+        StringBuilder output = new StringBuilder();
         try {
             if (!Objects.equals(executeCommand[0], "python")) {
                 // Compile the source
@@ -618,6 +620,20 @@ public class MainController {
                 if (compileProcess.exitValue() != 0) {
                     System.out.println("Exit Value != 0");
                     isCompiled = false;
+
+                    BufferedReader errorReader = new BufferedReader(new InputStreamReader(compileProcess.getErrorStream()));
+                    StringBuilder compileError = new StringBuilder();
+                    String line;
+                    while ((line = errorReader.readLine()) != null) {
+                        compileError.append(line).append("\n");
+                    }
+
+                    output.append("Compile Failed\n").append(compileError.toString());
+
+                    student.setCompiled(isCompiled);
+                    student.setIsRan(false);
+                    student.setOutput(output.toString());
+                    return student;
                 }
             }
 
@@ -633,12 +649,12 @@ public class MainController {
 
             // Get the output of the run
             BufferedReader reader1 = new BufferedReader(new InputStreamReader(runProcess.getInputStream()));
-            StringBuilder output = new StringBuilder();
+
             String line1;
             while ((line1 = reader1.readLine()) != null) {
                 output.append(line1).append("\n");
             }
-            //---------------------------------------------------------------------deneme
+            //--------------------------------------------------------------------- cmd de checklemek için
             BufferedReader errorReader = new BufferedReader(new InputStreamReader(runProcess.getErrorStream()));
             StringBuilder errors = new StringBuilder();
             String line2;
