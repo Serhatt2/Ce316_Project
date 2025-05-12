@@ -1,6 +1,7 @@
 # 💻 Ce316_Project
 
 ## 📌 Must Read Before Use
+##**PLEASE START THE APPLICATION IN ADMINISTRATOR MODE**
 
 The application creates two folders in the `{user.home}\Documents` directory:
 
